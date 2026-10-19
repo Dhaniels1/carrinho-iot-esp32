@@ -1,0 +1,122 @@
+#pragma once
+// Interface de controle servida diretamente pelo ESP32.
+// Atualize este arquivo junto com web/index.html ao mudar o site.
+const char PAGINA_WEB[] PROGMEM = R"CARRINHOHTML(
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carrinho IoT | Controle</title>
+<style>
+  :root { font-family: system-ui, -apple-system, Segoe UI, Arial, sans-serif; color: #eef4ff; background: #0d1424; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 50% 0, #283f69, #0d1424 68%); }
+  main { max-width: 700px; margin: 0 auto; padding: 30px 18px; }
+  header { display: flex; gap: 16px; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; }
+  .eyebrow { letter-spacing: .12em; font-size: 12px; color: #92c9ff; font-weight: 800; }
+  h1 { font-size: clamp(30px, 6vw, 44px); margin: 8px 0; letter-spacing: -.04em; }
+  p { color: #c3cfe4; line-height: 1.5; }
+  .tag { border: 1px solid #485b7e; border-radius: 99px; padding: 8px 12px; color: #b4cff3; font-size: 12px; }
+  .panel { margin-top: 24px; padding: 22px; border: 1px solid #344967; border-radius: 22px; background: #182641; box-shadow: 0 14px 40px #050a1670; }
+  .notice { background: #253a58; border-radius: 12px; padding: 13px; font-size: 14px; line-height: 1.5; color: #e6f1ff; }
+  .controls { display: grid; grid-template-columns: repeat(3, minmax(70px, 92px)); grid-template-rows: repeat(3, 80px); gap: 10px; justify-content: center; margin: 24px auto; }
+  button { background: #35517b; border: 1px solid #638ac1; color: white; border-radius: 16px; font-size: 30px; font-weight: 700; cursor: pointer; touch-action: none; user-select: none; }
+  button:focus-visible { outline: 3px solid #a4d2ff; outline-offset: 3px; }
+  button:active, button.pressed { background: #5287d0; transform: scale(.97); }
+  .up { grid-column: 2; grid-row: 1; } .left { grid-column: 1; grid-row: 2; }
+  .stop { grid-column: 2; grid-row: 2; background: #b42d49; border-color: #e16b81; }
+  .right { grid-column: 3; grid-row: 2; } .down { grid-column: 2; grid-row: 3; }
+  .speed { display: flex; justify-content: center; align-items: center; gap: 20px; }
+  .speed button { width: 64px; height: 52px; font-size: 27px; }
+  .speed strong { min-width: 78px; font-size: 22px; text-align: center; }
+  .status { text-align: center; font-weight: 700; color: #9ce6bf; }
+  .error { color: #ffadb7; }
+  .tip { margin-top: 24px; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <div class="eyebrow">ESP32 · WI-FI · HTTP</div>
+      <h1>Controle do Carrinho</h1>
+      <p>Direção, velocidade e parada</p>
+    </div>
+    <span class="tag" id="mode">Carregando</span>
+  </header>
+  <section class="panel" aria-label="Controle">
+    <div class="notice" id="notice">Carregando interface…</div>
+    <div class="controls">
+      <button class="up" data-cmd="frente" aria-label="Frente">▲</button>
+      <button class="left" data-cmd="esquerda" aria-label="Esquerda">◀</button>
+      <button class="stop" id="stop" aria-label="Parar">■</button>
+      <button class="right" data-cmd="direita" aria-label="Direita">▶</button>
+      <button class="down" data-cmd="re" aria-label="Ré">▼</button>
+    </div>
+    <div class="speed">
+      <button id="less" aria-label="Desacelerar">−</button>
+      <strong id="speed">100%</strong>
+      <button id="more" aria-label="Acelerar">+</button>
+    </div>
+    <p class="status" id="status" role="status">Parado</p>
+  </section>
+  <p class="tip">Segure uma direção para andar e solte para parar. Teste com as rodas suspensas. A versão pública no Netlify é apenas demonstração.</p>
+</main>
+<script>
+  const hostname = location.hostname;
+  const localESP = /^192\.168\./.test(hostname) || /^10\./.test(hostname) || /^172\.(1[6-9]|2\d|3[01])\./.test(hostname);
+  const statusEl = document.getElementById('status');
+  const speedEl = document.getElementById('speed');
+  let active = null, timer = null, speed = 100;
+  document.getElementById('mode').textContent = localESP ? 'ESP32 · controle local' : 'Modo demonstração';
+  document.getElementById('notice').textContent = localESP
+    ? 'Conectado à interface local do carrinho. O controle envia comandos pela rede Wi-Fi.'
+    : 'Versão hospedada: os botões simulam comandos. Para mover o carrinho, abra o endereço IP do ESP32 na mesma rede.';
+  async function send(cmd) {
+    if (!localESP) { statusEl.textContent = 'Simulação: ' + cmd; return; }
+    try {
+      const response = await fetch('/comando?valor=' + encodeURIComponent(cmd), {cache: 'no-store'});
+      if (!response.ok) throw Error('HTTP ' + response.status);
+      statusEl.classList.remove('error');
+      statusEl.textContent = cmd === 'parar' ? 'Parado' : 'Comando: ' + cmd;
+    } catch (error) {
+      statusEl.classList.add('error');
+      statusEl.textContent = 'Sem comunicação: ' + error.message;
+    }
+  }
+  function release() {
+    if (timer !== null) { clearInterval(timer); timer = null; }
+    if (active) { active.classList.remove('pressed'); active = null; }
+    send('parar');
+  }
+  document.querySelectorAll('[data-cmd]').forEach(button => {
+    button.addEventListener('pointerdown', event => {
+      event.preventDefault();
+      if (active) release();
+      active = button;
+      button.classList.add('pressed');
+      button.setPointerCapture(event.pointerId);
+      send(button.dataset.cmd);
+      timer = setInterval(() => send(button.dataset.cmd), 300);
+    });
+    button.addEventListener('pointerup', release);
+    button.addEventListener('pointercancel', release);
+    button.addEventListener('lostpointercapture', release);
+  });
+  document.getElementById('stop').addEventListener('click', release);
+  function adjust(delta) {
+    if (speed + delta < 30 || speed + delta > 100) return;
+    speed += delta;
+    speedEl.textContent = speed + '%';
+    send(delta > 0 ? 'acelerar' : 'desacelerar');
+  }
+  document.getElementById('less').addEventListener('click', () => adjust(-10));
+  document.getElementById('more').addEventListener('click', () => adjust(10));
+  window.addEventListener('blur', release);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) release(); });
+</script>
+</body>
+</html>
+
+)CARRINHOHTML";
