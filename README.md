@@ -1,53 +1,79 @@
 # Carrinho IoT — ESP32
 
-Carrinho robótico acadêmico controlado por Wi-Fi com dois ESP32. O firmware preserva a calibração dos motores da montagem testada e acrescenta uma página web local para direção e controle PWM.
+Carrinho acadêmico com controle físico por Wi-Fi e painel web com joystick virtual, ajustes de velocidade, faróis e sensor de luminosidade.
 
-## Estado das funcionalidades
+## Estado do projeto
 
-| Recurso | Situação |
+| Recurso | Status |
 |---|---|
-| Direções frente, ré, esquerda e direita | Testado na montagem anterior |
-| Controle de quatro botões via HTTP | Testado na montagem anterior |
-| Calibração dos motores (direito 240, esquerdo 243) | Testada |
-| Sensor LDR no GPIO 34 | Testado |
-| Faróis RGB e sinalização de curvas | Testado na montagem anterior |
-| Página web para controle direcional | Implementada; testar no hardware |
-| Acelerar e desacelerar em passos de 10% | Implementado; testar no hardware |
-| Parada automática se perder comandos | Implementada; testar no hardware |
-| Servomotor para içar peso | Ainda não implementado |
+| Motores e controle de quatro botões | Testados na montagem anterior |
+| Motores calibrados: esquerdo 243 e direito 240 | Testados anteriormente |
+| Sensor de luz e LEDs RGB com curvas sinalizadas | Testados anteriormente |
+| Joystick proporcional e curvas suaves | Implementado em código; testar no hardware |
+| PARAR e parada por ausência de comunicação (1,1 segundo) | Implementado; testar |
+| Faróis Auto / Ligar / Desligar | Implementado; testar |
+| Limiar de luminosidade ajustável entre 100 e 900 | Implementado; testar |
+| Velocidade máxima entre 30 e 100% | Implementado; testar |
+| Preferências persistidas no ESP32 | Implementado; testar |
+| Servomotor para levantar peso | Pendente |
 
-## Organização
+## Arquivos
 
-- `firmware/carrinho/carrinho.ino`: servidor HTTP, motores, LDR, RGB, controle PWM e segurança.
-- `firmware/carrinho/pagina.h`: interface embutida no ESP32, que envia `/comando?valor=...`.
-- `firmware/carrinho/secrets.h.example`: exemplo de configuração de rede, sem credenciais reais.
-- `firmware/controle/controle.ino`: ESP32 do controle com botões e comandos periódicos.
-- `web/index.html`: **demonstração** para hospedar no Netlify.
-- `netlify.toml`: publicação estática da pasta `web/`.
+- firmware/carrinho/carrinho.ino: firmware do servidor HTTP, motores, RGB e LDR.
+- firmware/carrinho/pagina.h: painel web embarcado no ESP32.
+- firmware/carrinho/secrets.h.example: modelo de credenciais (sem senha real).
+- firmware/controle/controle.ino: firmware de quatro botões, compatível com o novo carrinho.
+- web/index.html: demonstração estática hospedada no Netlify.
+- netlify.toml: publica a pasta web.
 
-## Testar com segurança
+## Instruções
 
-1. Copie `firmware/carrinho/secrets.h.example` para `firmware/carrinho/secrets.h` e preencha com o nome e senha do Wi-Fi. O `secrets.h` está ignorado pelo Git.
-2. Em Arduino IDE, selecione ESP32 Dev Module e instale um núcleo ESP32 recente que suporte `ledcAttach`.
-3. Grave `firmware/carrinho/carrinho.ino`. Leia o IP real no Monitor Serial em **9600 baud**.
-4. No controle, configure o Wi-Fi e confirme o IP em `firmware/controle/controle.ino`. Atualize o controle se mudar o firmware do carrinho: os comandos são renovados para funcionar com a parada automática.
-5. Teste com as rodas **suspensas**. No celular conectado à **mesma rede Wi-Fi**, visite `http://IP-DO-CARRINHO/`.
-6. Segure uma seta para andar e solte para parar. Teste `+` e `−` para alterar o PWM de 30% a 100%, preservando a proporção entre motores.
+1. Copie firmware/carrinho/secrets.h.example para um arquivo chamado secrets.h na mesma pasta e informe a rede Wi-Fi. NÃO envie este arquivo ao GitHub.
+2. Grave carrinho.ino com Arduino IDE e um núcleo ESP32 recente que suporte ledcAttach.
+3. Abra Monitor Serial a 9600 baud e identifique o IP atualizado do carrinho.
+4. Coloque as rodas SUSPENSAS antes dos testes. No celular ou computador ligado ao mesmo Wi-Fi, abra http://IP-DO-CARRINHO/ .
+5. Arraste o joystick para frente, ré ou diagonais. Solte para parar e verifique o botão PARAR. Confira LEDs, LDR e calibração física antes de colocar o carrinho no chão.
+6. O controle físico mantém a rota /comando?valor=..., mas precisa de comandos periódicos para não disparar a parada de segurança. Confira seu IP no controle físico.
 
-## Sobre o Netlify
+## Joystick
 
-O Netlify publica `web/` como **demonstração visual**. O carrinho usa IP privado (`192.168.x.x`), que não fica acessível automaticamente na internet. Além disso, navegadores restringem requisições de sites HTTPS a dispositivos HTTP na rede privada. Para controlar **de verdade**, abra a página servida pelo ESP32 na rede local. Não exponha o ESP32 diretamente na internet.
+Posição x/y vai de -100 a 100. Eixo y negativo é para a frente, eixo x positivo é para a direita. A mistura de potência nos dois motores permite curvas suaves e giros sobre o eixo. Os valores máximos continuam calibrados em 243 (esquerdo) e 240 (direito). O slider de velocidade define o percentual máximo. Ao soltar o joystick ou perder comunicação por mais de 1,1 segundo, o carrinho para.
 
-## Ligações do carrinho
+## Painel de faróis e sensor
+
+- Auto: LDR decide quando ligar o arco-íris.
+- Ligar: LEDs acesos independentemente da leitura de luz.
+- Desligar: LEDs apagados; durante as curvas, a sinalização continua tendo prioridade.
+- Sensibilidade: valor entre 100 e 900; no circuito atual, um valor de leitura menor indica mais escuro. Ligar abaixo do limite, desligar acima de limite + 150 (histerese).
+- As configurações de farol, limite e velocidade são salvas no ESP32 usando Preferences.
+
+## Rotas HTTP
+
+| Rota | Parâmetro | Uso |
+|---|---|---|
+| / | nenhum | Página de controle local |
+| /comando | valor=frente, re, esquerda, direita, parar | Botões físicos |
+| /joystick | x=30&y=-60 | Joystick proporcional |
+| /config | farol=auto / ligar / desligar | Modo do farol |
+| /config | limite=300 | Sensibilidade |
+| /config | velocidade=80 | Velocidade máxima |
+| /estado | nenhum | JSON de luminosidade, configurações e movimento |
+
+## GitHub e Netlify
+
+O projeto público mostra a interface de demonstração em https://carrinho-iot-esp32.netlify.app/ .
+A versão publicada em HTTPS não consegue comandar diretamente um IP privado HTTP do carrinho pela internet. Para controle real, use a página servida pelo ESP32 dentro da mesma rede Wi-Fi. Não exponha o servidor do carrinho à internet: atualmente não há autenticação.
+
+## GPIOs
 
 | Função | GPIO |
 |---|---|
 | Motor direito | 25 e 26 |
 | Motor esquerdo | 32 e 33 |
-| RGB comum aos dois LEDs: R / G / B | 16 / 17 / 18 |
+| Dois RGB compartilhados R/G/B | 16, 17 e 18 |
 | Sensor de luz | 34 |
-| Botões do controle: esquerda / direita / frente / ré | 18 / 19 / 21 / 22 |
+| Controle físico (esquerda, direita, frente, ré) | 18, 19, 21 e 22 |
 
-## Segurança
+## Próximas etapas
 
-Não versionar credenciais do Wi-Fi; não conectar a rede do carrinho diretamente à internet. O servidor local ainda não tem autenticação. A parada por perda de comunicação complementa, mas não substitui, testes e supervisão física.
+Testar no hardware o novo joystick e os controles web, validar o mecanismo de parada e depois implementar o servomotor para içar peso.
