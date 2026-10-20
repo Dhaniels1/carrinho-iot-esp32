@@ -23,17 +23,29 @@ Carrinho acadêmico com controle físico por Wi-Fi e painel web com joystick vir
 - firmware/carrinho/pagina.h: painel web embarcado no ESP32.
 - firmware/carrinho/secrets.h.example: modelo de credenciais (sem senha real).
 - firmware/controle/controle.ino: firmware de quatro botões, compatível com o novo carrinho.
-- web/index.html: demonstração estática hospedada no Netlify.
+- web/index.html: demonstração estática publicada no GitHub Pages (e, se ativo, no Netlify).
 - netlify.toml: publica a pasta web.
 
-## Instruções
+## Conectar diretamente ao carrinho — sem roteador, sem internet
 
-1. Copie firmware/carrinho/secrets.h.example para um arquivo chamado secrets.h na mesma pasta e informe a rede Wi-Fi. NÃO envie este arquivo ao GitHub.
-2. Grave carrinho.ino com Arduino IDE e um núcleo ESP32 recente que suporte ledcAttach.
-3. Abra Monitor Serial a 9600 baud e identifique o IP atualizado do carrinho.
-4. Coloque as rodas SUSPENSAS antes dos testes. No celular ou computador ligado ao mesmo Wi-Fi, abra http://IP-DO-CARRINHO/ .
-5. Arraste o joystick para frente, ré ou diagonais. Solte para parar e verifique o botão PARAR. Confira LEDs, LDR e calibração física antes de colocar o carrinho no chão.
-6. O controle físico mantém a rota /comando?valor=..., mas precisa de comandos periódicos para não disparar a parada de segurança. Confira seu IP no controle físico.
+O **ESP32 do carrinho é um ponto de acesso Wi-Fi**. Ele cria a rede **Carrinho-IoT** e hospeda a interface do joystick em **http://192.168.4.1/**. Toda a interface (HTML/CSS/JS) continua gravada na memória do ESP32, dentro de `firmware/carrinho/pagina.h`.
+
+1. Copie `firmware/carrinho/secrets.h.example` para `firmware/carrinho/secrets.h` (o arquivo `secrets.h` que você criou na versão anterior precisa ser atualizado). Defina `AP_SSID` e uma senha `AP_PASSWORD` **de 8 a 63 caracteres**, de preferência exclusiva para o carrinho. Não publique senhas no GitHub.
+2. Mantenha `carrinho.ino`, `pagina.h` e `secrets.h` na **mesma pasta**. Grave `carrinho.ino` no Arduino IDE com núcleo ESP32 recente (3.x) e abra o Monitor Serial a **9600 baud**.
+3. Confirme as mensagens **REDE DO CARRINHO: Carrinho-IoT** e **IP DO CARRINHO: 192.168.4.1**.
+4. No celular, desligue temporariamente os dados móveis se ele insistir em trocar de rede. Conecte-se ao Wi-Fi **Carrinho-IoT** e entre em **http://192.168.4.1/** (HTTP, não HTTPS). É normal o celular avisar que a rede está *sem internet*.
+5. Teste o joystick e o botão PARAR **com as rodas suspensas**. Comece com velocidade máxima a 30%. Confira depois LEDs, controle manual de farol, leitura de luminosidade e sensibilidade do LDR.
+6. O **ESP32 do controle físico**, se usado, precisa ser atualizado separadamente com a mesma senha do AP. O código `firmware/controle/controle.ino` já aponta para SSID `Carrinho-IoT` e IP `192.168.4.1`, mas ainda exige inserir a senha localmente.
+
+A página no **GitHub Pages** permanece uma demonstração pública; para controlar o carrinho real, use a página no IP do ESP32. O modo AP não depende de sinal da faculdade ou do Wi-Fi `iot2`.
+
+### Limites e segurança
+
+- O ESP32 cria Wi-Fi de 2,4 GHz, com alcance limitado. A senha da rede protege o acesso básico ao controle. Não use uma senha publicada no repositório.
+- O servidor HTTP é local e **não tem autenticação adicional**; quem entrar na rede do carrinho poderá enviar comandos.
+- Se a comunicação deixar de renovar comandos por ~1,1 s, o firmware tenta parar automaticamente. Teste essa proteção antes de colocar o carrinho no chão.
+- Ao ativar o AP, o ESP32 do carrinho **não se conecta à internet**; esse é o comportamento intencional.
+- O firmware atualizado **ainda precisa ser compilado, gravado e validado no hardware**.
 
 ## Joystick
 
@@ -59,10 +71,9 @@ Posição x/y vai de -100 a 100. Eixo y negativo é para a frente, eixo x positi
 | /config | velocidade=80 | Velocidade máxima |
 | /estado | nenhum | JSON de luminosidade, configurações e movimento |
 
-## GitHub e Netlify
+## GitHub Pages e Netlify
 
-O projeto público mostra a interface de demonstração em https://carrinho-iot-esp32.netlify.app/ .
-A versão publicada em HTTPS não consegue comandar diretamente um IP privado HTTP do carrinho pela internet. Para controle real, use a página servida pelo ESP32 dentro da mesma rede Wi-Fi. Não exponha o servidor do carrinho à internet: atualmente não há autenticação.
+O projeto público pode ser acessado em https://dhaniels1.github.io/carrinho-iot-esp32/ e a versão Netlify anterior em https://carrinho-iot-esp32.netlify.app/ (quando disponíveis). Estes endereços são para **demonstração**. O controle real acontece em **http://192.168.4.1/** depois de conectar ao Wi-Fi **Carrinho-IoT**. Não exponha o servidor HTTP diretamente à internet.
 
 ## GPIOs
 
