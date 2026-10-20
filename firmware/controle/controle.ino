@@ -1,10 +1,11 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-// Coloque aqui a MESMA rede do carrinho. Nao publique credenciais reais.
-const char* ssid = "NOME_DA_REDE";
-const char* senha = "SENHA_DA_REDE";
-const char* ipCarrinho = "192.168.10.100"; // confira IP atual no Monitor Serial
+// O carrinho cria uma rede propria. Use a senha AP_PASSWORD de secrets.h
+// do ESP32 do carrinho (copie apenas LOCALMENTE, nao publique credenciais).
+const char* ssid = "Carrinho-IoT";
+const char* senha = "SENHA_DO_AP_DO_CARRINHO"; // altere antes de carregar
+const char* ipCarrinho = "192.168.4.1"; // IP fixo do carrinho no modo AP
 
 const int BOTAO_ESQUERDA = 18, BOTAO_DIREITA = 19;
 const int BOTAO_FRENTE = 21, BOTAO_RE = 22;
