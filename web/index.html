@@ -141,6 +141,7 @@ footer{margin-top:14px;font-size:12px;color:#8495ae;text-align:center;line-heigh
     knob.style.transform = "translate(" + (x*range/100) + "px," + (y*range/100) + "px)";
     $("direction").textContent = direction();
     if (!local) status.textContent = "Simulação: " + direction();
+    else if (!status.classList.contains("error")) status.textContent = direction();
   }
   function transmit(force){
     const now = Date.now();
@@ -215,6 +216,16 @@ footer{margin-top:14px;font-size:12px;color:#8495ae;text-align:center;line-heigh
       $("farolStatus").textContent=data.farolLigado?"Ligado":"Desligado";
       if (activePointer===null) $("direction").textContent=data.movimento==="parar"?"Parado":data.movimento;
       if (data.modoFarol && data.modoFarol!==farol) showFarol(data.modoFarol);
+      if (Number.isFinite(Number(data.velocidade)) && document.activeElement !== $("speed")) {
+        speed = Number(data.velocidade);
+        $("speed").value = speed;
+        $("speedValue").textContent = speed + "%";
+      }
+      if (Number.isFinite(Number(data.limite)) && document.activeElement !== $("sensitivity")) {
+        sensitivity = Number(data.limite);
+        $("sensitivity").value = sensitivity;
+        $("sensitivityValue").textContent = sensitivity;
+      }
     }catch(_){}
   }
   renderJoystick();
