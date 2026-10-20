@@ -4,6 +4,10 @@
 #include "secrets.h"
 #include "pagina.h"
 
+#if !defined(AP_SSID) || !defined(AP_PASSWORD)
+#error "Defina AP_SSID e AP_PASSWORD no arquivo secrets.h (veja secrets.h.example)"
+#endif
+
 // ================= CONEXOES E CALIBRACAO =================
 
 WebServer servidor(80);
@@ -38,7 +42,6 @@ unsigned long ultimoMovimento = 0;
 unsigned long ultimoPisca = 0;
 unsigned long ultimoArcoIris = 0;
 unsigned long ultimoSerial = 0;
-unsigned long ultimaTentativaWiFi = 0;
 
 const unsigned long TIMEOUT_MOVIMENTO = 1100;
 
@@ -127,7 +130,7 @@ void atualizarSensor() {
   if (millis() - ultimoSerial >= 3000) {
     ultimoSerial = millis();
     Serial.printf("Luminosidade: %d | Limite: %d | IP: %s | Movimento: %s | Velocidade: %d%%\n",
-      leituraLuz, limiteEscuro, WiFi.localIP().toString().c_str(),
+      leituraLuz, limiteEscuro, WiFi.softAPIP().toString().c_str(),
       movimentoAtual.c_str(), velocidadePercentual);
   }
 }
@@ -273,15 +276,19 @@ void setup() {
   if (modoFarol != "auto" && modoFarol != "ligar" && modoFarol != "desligar")
     modoFarol = "auto";
 
-  WiFi.mode(WIFI_STA);
-  WiFi.setSleep(false);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("Conectando ao Wi-Fi");
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
+  // O carrinho cria sua propria rede Wi-Fi (sem roteador e sem internet).
+  // O SSID e a senha ficam definidos APENAS no arquivo local secrets.h.
+  WiFi.mode(WIFI_AP);
+  IPAddress ipAP(192, 168, 4, 1);
+  IPAddress mascara(255, 255, 255, 0);
+  if (!WiFi.softAPConfig(ipAP, ipAP, mascara) ||
+      !WiFi.softAP(AP_SSID, AP_PASSWORD)) {
+    parar();
+    Serial.println("ERRO: nao foi possivel criar a rede Carrinho-IoT");
+    while (true) delay(1000);
   }
-  Serial.printf("\nIP DO CARRINHO: %s\n", WiFi.localIP().toString().c_str());
+  Serial.printf("\nREDE DO CARRINHO: %s\n", AP_SSID);
+  Serial.printf("IP DO CARRINHO: %s\n", WiFi.softAPIP().toString().c_str());
 
   servidor.on("/", HTTP_GET, []() {
     servidor.send_P(200, "text/html; charset=utf-8", PAGINA_WEB);
@@ -308,11 +315,10 @@ void loop() {
     Serial.println("PARADA DE SEGURANCA: sem comandos recentes");
   }
 
-  if (WiFi.status() != WL_CONNECTED) {
+  // Na modalidade ponto de acesso, WiFi.status() nao indica WL_CONNECTED.
+  // Sem cliente conectado, o carrinho nao pode permanecer em movimento.
+  if (WiFi.softAPgetStationNum() == 0 && movimentoAtual != "parar") {
     parar();
-    if (millis() - ultimaTentativaWiFi > 5000) {
-      ultimaTentativaWiFi = millis();
-      WiFi.reconnect();
-    }
+    Serial.println("PARADA DE SEGURANCA: nenhum cliente no Wi-Fi do carrinho");
   }
 }
