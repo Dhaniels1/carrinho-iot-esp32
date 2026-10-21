@@ -23,8 +23,7 @@ Carrinho acadêmico com controle físico por Wi-Fi e painel web com joystick vir
 - firmware/carrinho/pagina.h: painel web embarcado no ESP32.
 - firmware/carrinho/secrets.h.example: modelo de credenciais (sem senha real).
 - firmware/controle/controle.ino: firmware de quatro botões, compatível com o novo carrinho.
-- web/index.html: demonstração estática publicada no GitHub Pages (e, se ativo, no Netlify).
-- netlify.toml: publica a pasta web.
+- web/index.html: demonstração estática publicada no GitHub Pages.
 
 ## Conectar diretamente ao carrinho — sem roteador, sem internet
 
@@ -71,9 +70,9 @@ Posição x/y vai de -100 a 100. Eixo y negativo é para a frente, eixo x positi
 | /config | velocidade=80 | Velocidade máxima |
 | /estado | nenhum | JSON de luminosidade, configurações e movimento |
 
-## GitHub Pages e Netlify
+## GitHub Pages
 
-O projeto público pode ser acessado em https://dhaniels1.github.io/carrinho-iot-esp32/ e a versão Netlify anterior em https://carrinho-iot-esp32.netlify.app/ (quando disponíveis). Estes endereços são para **demonstração**. O controle real acontece em **http://192.168.4.1/** depois de conectar ao Wi-Fi **Carrinho-IoT**. Não exponha o servidor HTTP diretamente à internet.
+O projeto público pode ser acessado em https://dhaniels1.github.io/carrinho-iot-esp32/ (quando disponível). Estes endereços são para **demonstração**. O controle real acontece em **http://192.168.4.1/** depois de conectar ao Wi-Fi **Carrinho-IoT**. Não exponha o servidor HTTP diretamente à internet.
 
 ## GPIOs
 
