@@ -1,21 +1,12 @@
-# Etapa 02 — Testes dos motores
+# Etapa 02 — Motores, faróis e setas
 
-## Objetivo
-Testar individualmente os motores esquerdo e direito, conferir sentido de rotação e corrigir problemas de ligação ou acionamento.
+## Código separado por assunto
 
-## Registro de desenvolvimento
-Durante a montagem, houve investigação de um motor que não girava e de acionamentos inesperados em outro motor. As causas e correções devem ser registradas apenas quando confirmadas.
+- [`teste_motores/teste_motores.ino`](teste_motores/teste_motores.ino): controla dois motores com quatro pinos PWM. Pelo Monitor Serial, `f` avança, `r` dá ré, `e` vira à esquerda, `d` vira à direita e `p` para. A velocidade está limitada a 30% e um comando expira em 800 ms.
+- [`teste_farois/teste_farois.ino`](teste_farois/teste_farois.ino): mostra LDR, farol automático e sinalização de curvas separadamente. Com `e` ou `d`, os RGB piscam; com `p`, o sensor de luz controla a iluminação.
 
-## Código desta etapa
-**Sketch de teste original ainda não arquivado.** Não substituímos o teste por um código inventado.
+**Hardware do projeto:** direito nos GPIOs 25/26, esquerdo nos 32/33; sensor de luz no 34; RGB nos 16/17/18. Os dois módulos RGB compartilham os mesmos sinais, por isso **não há seta física independente de cada lado**.
 
-## Referência no firmware atual
-- [carrinho.ino](../../firmware/carrinho/carrinho.ino): função `aplicarMotores`, controle PWM com `ledcWrite`, funções `parar`, `definirMovimento` e `movimentoDosBotoes`.
-- GPIOs no código atual: direito **25 e 26**; esquerdo **32 e 33**.
-- Limites PWM definidos: direito **240**; esquerdo **243**; isso não comprova calibração do teste antigo.
+Os exemplos foram **reconstruídos em 28/10/2026** para fins didáticos. Não substituem os códigos realmente utilizados nas entregas anteriores, ainda não recuperados. O firmware completo atual fica em [`firmware/carrinho/carrinho.ino`](../../firmware/carrinho/carrinho.ino).
 
-## Antes de testar
-Mantenha as rodas suspensas e alimentação acessível para desligamento. Verifique driver, GND comum e ligações; nunca alimente motor diretamente de um GPIO.
-
-## Próximos registros
-Adicionar sketch usado nos primeiros testes, esquema real das conexões e resultados de cada motor.
+**Segurança:** não conectar motores diretamente ao ESP32; use o driver instalado, alimentação apropriada, GND comum e rodas suspensas.
