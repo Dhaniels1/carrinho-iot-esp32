@@ -25,7 +25,7 @@ Abra a pasta **[`carrinho_web/`](carrinho_web/)**:
 6. Com **rodas suspensas** e acesso ao corte de alimentação, teste direção e PARAR, primeiro com velocidade de 30%.
 7. Confira farol automático e seta piscante durante curvas; os LEDs RGB compartilham os mesmos pinos.
 
-O HTML usa botões que precisam ficar pressionados para manter a direção, em vez de um joystick proporcional. O ESP32 interrompe o movimento se não receber renovação do comando por **800 ms**; o servidor fornece `GET /comando?valor=frente/re/esquerda/direita/parar/acelerar/desacelerar`.
+O HTML voltou a usar um **joystick circular**, com a aparência do painel original (fundo em degradê, cartões escuros, indicador de velocidade e botão PARAR). O JavaScript transforma a posição do joystick em **quatro comandos discretos** (`frente`, `re`, `esquerda`, `direita`), sem cálculos de potência proporcional. Para movimentar, arraste e mantenha pressionado; ao soltar, o navegador envia `parar`. Também é possível usar as setas do teclado. O ESP32 interrompe o movimento se não receber renovação do comando por **800 ms**; o servidor usa `GET /comando?valor=frente/re/esquerda/direita/parar/acelerar/desacelerar`.
 
 **Atenção:** o exemplo usa a rede Wi-Fi criada pelo ESP32 e não configura reserva DHCP no roteador — exigência específica do enunciado que precisa ser esclarecida/adequada. PARAR e timeout são funções de software, não desligamento físico.
 
@@ -33,4 +33,4 @@ O HTML usa botões que precisam ficar pressionados para manter a direção, em v
 
 A versão mais completa, que vocês já utilizaram, tem joystick proporcional e ajustes de faróis: [`web/index.html`](../../web/index.html), embarcada em [`firmware/carrinho/pagina.h`](../../firmware/carrinho/pagina.h). Ela foi preservada, evitando alterar o sistema físico sem testes.
 
-**Status:** exemplo didático implementado no repositório. Compilação no CI e testes na placa ainda precisam ser confirmados.
+**Status:** exemplo didático implementado no repositório. Sintaxe JavaScript e sincronização HTML/cabeçalho verificadas; compilação do ESP32 no CI e testes na placa ainda precisam ser confirmados.
