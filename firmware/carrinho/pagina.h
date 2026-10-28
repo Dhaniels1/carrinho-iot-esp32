@@ -1,93 +1,106 @@
 #pragma once
-// Interface web sincronizada com web/index.html. Nao edite os arquivos isoladamente.
+// Painel original com joystick, farois e velocidade; igual ao web/index.html.
 const char PAGINA_WEB[] PROGMEM = R"CARRINHOHTML(
 <!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101725">
-<meta name="description" content="Controle e demonstração do carrinho ESP32 via Wi-Fi">
-<title>Carrinho IoT | Controle</title>
+<meta name="theme-color" content="#080b10">
+<title>Carrinho IoT | Painel</title>
 <style>
-:root{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#e9f0fa;background:#101725;color-scheme:dark}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#101725}
-main{width:min(940px,100%);margin:auto;padding:28px 16px 46px}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-size:clamp(25px,5vw,35px);margin:0}h2{font-size:17px;margin:0 0 16px}
-p{line-height:1.6}.subtitle,.hint{color:#a4b4c9;font-size:13px}
-.pill{border:1px solid #496080;border-radius:30px;padding:9px 13px;font-size:12px;color:#cddbeb}
-.notice{background:#1b2940;border:1px solid #3b5374;border-radius:10px;padding:13px 16px;margin:20px 0;color:#dbe7f6;font-size:13px}
-.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.panel{background:#192538;border:1px solid #34445c;border-radius:16px;padding:22px;min-width:0}
-.joystick{display:flex;flex-direction:column;align-items:center}.joystick h2{align-self:stretch}
-.pad{width:226px;height:226px;position:relative;touch-action:none;cursor:grab;border:2px solid #52698b;background:radial-gradient(circle,#243956,#111d2f);border-radius:50%}
-.pad:active{cursor:grabbing}.pad:after{content:"";position:absolute;inset:18px;border:1px solid #415775;border-radius:50%;pointer-events:none}
-.knob{width:76px;height:76px;position:absolute;top:calc(50% - 38px);left:calc(50% - 38px);border-radius:50%;background:#438bdf;border:2px solid #a3c9fb;display:grid;place-items:center;font-size:26px;pointer-events:none;will-change:transform}
-.joystate{margin:18px 0 5px;font-weight:750;color:#d9e9ff}.small{font-size:12px;color:#adc0d8}
-.setting{margin-top:16px}.slider-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:650;font-size:14px}
-output{color:#a8d6ff;font-weight:800}input[type=range]{display:block;width:100%;accent-color:#75b5ff;margin:16px 0}
-.ends{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:#acbfd8}
-.modes{display:flex;gap:7px;margin-top:10px}.mode{flex:1;background:#27354b;border:1px solid #475c79;border-radius:8px;color:#d7e5f6;padding:10px;cursor:pointer}.mode.active{background:#3766a8;color:white}
-.advanced{border-top:1px solid #34445c;margin-top:20px;padding-top:16px}.advanced summary{cursor:pointer;font-size:14px;font-weight:700}
-.setting-note{font-size:12px;color:#b4c5db}.meter{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:#adc4e3}
-.speed-steps{display:flex;gap:10px}.speed-steps button{flex:1;border:1px solid #50749d;border-radius:9px;padding:11px;background:#274469;color:white;font-weight:700;cursor:pointer}
-.actions{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:17px}
-.status{font-weight:700;color:#99e8be;font-size:13px}.status.error{color:#ffb4be}
-.stop{background:#c83953;color:white;border:1px solid #f9778c;border-radius:10px;padding:15px 25px;font-weight:900;cursor:pointer}
-button:focus-visible,summary:focus-visible,.pad:focus-visible,input:focus-visible{outline:3px solid #ffcf71;outline-offset:3px}
-footer{font-size:12px;line-height:1.65;color:#aebed1;margin-top:22px}
-@media(max-width:670px){.layout{grid-template-columns:1fr}.panel{padding:17px}.stop{width:100%}.pad{width:214px;height:214px}}
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+:root{font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#f7f9ff;background:#080b10;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 55% 0,#192b46 0,#0b101a 36%,#080b10 72%);min-height:100vh}
+main{width:min(1060px,100%);margin:auto;padding:22px 20px 44px}
+header{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:22px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.15em;color:#7caee9;margin:0 0 8px}
+h1{font-size:clamp(24px,4vw,36px);margin:0;letter-spacing:-.035em}
+.subtitle{font-size:13px;color:#96a8c2;margin-top:7px}
+.pill{border:1px solid #2b3f60;background:#142139;border-radius:999px;padding:9px 13px;font-size:12px;color:#bdcce0}
+.notice{background:#17253b;border:1px solid #2e415f;border-radius:12px;padding:11px 14px;margin-bottom:16px;color:#b8c9de;font-size:13px;line-height:1.5}
+.panel{background:#0e131c;border:1px solid #263141;border-radius:19px;padding:22px;box-shadow:0 16px 42px #0004}
+.top{display:grid;grid-template-columns:minmax(280px,1fr) minmax(270px,1.18fr);gap:18px;align-items:stretch}
+h2{font-size:15px;margin:0 0 17px}
+.joystick-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:328px}
+.joystick-panel h2{align-self:stretch}
+.pad{width:234px;height:234px;position:relative;touch-action:none;cursor:grab;border:2px solid #39485d;background:radial-gradient(circle,#15273e 0,#090f18 68%);border-radius:50%;box-shadow:inset 0 0 28px #0008}
+.pad:active{cursor:grabbing}
+.pad:before{content:"";position:absolute;inset:28px;border-radius:50%;border:1px solid #2a3a4d}
+.pad:after{content:"";position:absolute;left:50%;top:50%;width:85%;height:1px;background:#243247;transform:translate(-50%,-50%);pointer-events:none}
+.vertical{position:absolute;left:50%;top:8%;height:84%;width:1px;background:#243247;pointer-events:none}
+.knob{position:absolute;left:calc(50% - 39px);top:calc(50% - 39px);width:78px;height:78px;border-radius:50%;border:1px solid #6ba8e6;background:linear-gradient(140deg,#5db5f5,#245eaf);box-shadow:0 7px 22px #0a4eab80;display:grid;place-items:center;font-size:25px;pointer-events:none;will-change:transform}
+.joystate{font-size:13px;color:#c1d4ed;margin-top:16px;min-height:22px}
+.dot{width:7px;height:7px;background:#71cfa7;display:inline-block;border-radius:50%;margin-right:7px}
+.small{font-size:12px;color:#91a3bc}
+.settings{display:grid;gap:19px;align-content:center}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:4px;background:#080c12;border-radius:12px}
+.mode{background:transparent;border:0;color:#aebbd0;padding:11px 8px;font-weight:650;font-size:13px;border-radius:9px;cursor:pointer}
+.mode.active{background:#263954;color:white;box-shadow:0 2px 10px #0005}
+.mode:focus-visible,.stop:focus-visible,.pad:focus-visible{outline:2px solid #7bc0ff;outline-offset:3px}
+.setting-note{margin:9px 0 0;font-size:12px;color:#96a9c3;min-height:30px}
+.divider{height:1px;background:#263246}
+.slider-head{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:14px;font-weight:700;margin-bottom:12px}
+output{font-size:16px;color:#a8d5ff;font-weight:800}
+input[type=range]{width:100%;accent-color:#60a9ef;cursor:pointer;display:block;margin:10px 0}
+.ends{display:flex;justify-content:space-between;color:#8298b5;font-size:11px;gap:12px}
+.meter{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:#9cb6d8;margin-top:10px}
+.bottom{margin-top:18px}
+.bottom h2{font-size:20px;margin-bottom:15px}
+.bottom output{font-size:22px;color:white}
+.actions{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-top:21px}
+.stop{background:#cf3451;border:1px solid #fa7a93;border-radius:13px;padding:14px 25px;color:white;font-size:14px;font-weight:900;cursor:pointer;min-width:168px}
+.status{font-size:13px;color:#83d9b7;font-weight:700}
+.status.error{color:#ffadb9}
+footer{margin-top:14px;font-size:12px;color:#8495ae;text-align:center;line-height:1.5}
+@media(max-width:720px){main{padding:16px 12px 36px}.top{grid-template-columns:1fr}.panel{padding:18px}.joystick-panel{min-height:304px}.pad{width:220px;height:220px}.actions{align-items:stretch}.stop{width:100%}}
 </style>
 </head>
 <body>
 <main>
 <header>
-  <div><h1>Carrinho IoT</h1><p class="subtitle">Controle Wi-Fi por ESP32 · Projeto acadêmico</p></div>
-  <span class="pill" id="modeLabel">Verificando...</span>
+ <div><p class="eyebrow">ESP32 · WI-FI · CONTROLE</p><h1>Painel do Carrinho</h1><div class="subtitle">Joystick, faróis e calibração em uma única tela</div></div>
+ <span class="pill" id="modeLabel">Verificando...</span>
 </header>
-<div class="notice" id="notice" role="note">Carregando interface...</div>
-<div class="layout">
-  <section class="panel joystick" aria-labelledby="controle-title">
-    <h2 id="controle-title">Direção</h2>
-    <div class="pad" id="pad" role="group" aria-label="Joystick por toque ou mouse: arraste para dirigir e solte para parar">
-      <div class="knob" id="knob" aria-hidden="true">✥</div>
-    </div>
-    <div class="joystate" id="direction">Parado</div>
-    <p class="small">Arraste o círculo azul. Solte para parar.</p>
-  </section>
-  <section class="panel" aria-labelledby="ajustes-title">
-    <h2 id="ajustes-title">Velocidade</h2>
-    <div class="slider-head"><label for="speed">Limite de velocidade</label><output id="speedValue" for="speed">30%</output></div>
-    <input id="speed" type="range" min="30" max="100" step="10" value="30">
-    <div class="speed-steps">
-      <button type="button" data-speed-step="-10" aria-label="Desacelerar 10 por cento">− Desacelerar</button>
-      <button type="button" data-speed-step="10" aria-label="Acelerar 10 por cento">+ Acelerar</button>
-    </div>
-    <details class="advanced">
-      <summary>Faróis e sensor de luz</summary>
-      <p class="hint">Faróis automáticos quando escurece. Ajustes adicionais são opcionais.</p>
-      <div class="modes" aria-label="Modo do farol">
-        <button type="button" class="mode active" data-farol="auto">Auto</button>
-        <button type="button" class="mode" data-farol="ligar">Ligar</button>
-        <button type="button" class="mode" data-farol="desligar">Desligar</button>
-      </div>
-      <p class="setting-note" id="farolInfo">O sensor decide quando acender.</p>
-      <div class="setting">
-        <div class="slider-head"><label for="sensitivity">Sensibilidade</label><output id="sensitivityValue" for="sensitivity">300</output></div>
-        <input id="sensitivity" type="range" min="100" max="900" step="25" value="300">
-        <div class="ends"><span>Menor sensibilidade</span><span>Maior sensibilidade</span></div>
-        <p class="meter"><span>LDR: <strong id="ldr">--</strong></span><span>Farol: <strong id="farolStatus">--</strong></span></p>
-      </div>
-    </details>
-  </section>
+<div class="notice" id="notice">Preparando controle...</div>
+<div class="top">
+ <section class="panel joystick-panel">
+  <h2>Joystick virtual</h2>
+  <div class="pad" id="pad" role="group" aria-label="Joystick virtual: arraste para mover o carrinho">
+   <div class="vertical"></div><div class="knob" id="knob">✥</div>
+  </div>
+  <div class="joystate"><span class="dot"></span><span id="direction">Parado</span></div>
+  <div class="small">Arraste para dirigir · solte para parar</div>
+ </section>
+ <section class="panel settings">
+  <div>
+   <h2>◉ &nbsp; Controle dos faróis</h2>
+   <div class="modes">
+    <button type="button" class="mode active" data-farol="auto">Auto</button>
+    <button type="button" class="mode" data-farol="ligar">Ligar</button>
+    <button type="button" class="mode" data-farol="desligar">Desligar</button>
+   </div>
+   <div class="setting-note" id="farolInfo">O sensor de luz decide quando acender os LEDs.</div>
+  </div>
+  <div class="divider"></div>
+  <div>
+   <div class="slider-head"><label for="sensitivity">Sensibilidade do sensor</label><output id="sensitivityValue">300</output></div>
+   <input id="sensitivity" type="range" min="100" max="900" step="25" value="300">
+   <div class="ends"><span>Mais escuro para ligar</span><span>Acende mais cedo</span></div>
+   <div class="meter"><span>Leitura LDR: <strong id="ldr">--</strong></span><span>Farol: <strong id="farolStatus">--</strong></span></div>
+  </div>
+ </section>
 </div>
-<div class="actions">
-  <div class="status" id="status" role="status" aria-live="polite">Parado</div>
-  <button type="button" class="stop" id="stop">■ PARAR</button>
-</div>
-<footer>Primeiro teste: rodas suspensas e velocidade baixa. Fora da rede do carrinho, este painel é apenas uma simulação; para controlar os motores, conecte-se ao Wi-Fi do ESP32 e abra <strong>http://192.168.4.1/</strong>. O botão PARAR é uma função de software, não um corte físico da energia.</footer>
+<section class="panel bottom">
+ <div class="slider-head"><h2><label for="speed">Velocidade máxima</label></h2><output id="speedValue">30%</output></div>
+ <input id="speed" type="range" min="30" max="100" step="10" value="30">
+ <div class="ends"><span>30% · mais lento</span><span>100% · potência calibrada</span></div>
+ <div class="actions">
+  <div class="status" id="status" role="status">Parado</div>
+  <button type="button" class="stop" id="stop">■ &nbsp; PARAR</button>
+ </div>
+</section>
+<footer>Teste primeiro com as rodas suspensas. Esta página pública é apenas uma demonstração; para controlar o carrinho real, conecte-se ao Wi-Fi dele e abra http://192.168.4.1/.</footer>
 </main>
 <script>
 (function(){
@@ -213,15 +226,6 @@ footer{font-size:12px;line-height:1.65;color:#aebed1;margin-top:22px}
     $("speedValue").textContent=speed+"%";
   });
   $("speed").addEventListener("change",()=>request("/config",{velocidade:speed}));
-  document.querySelectorAll("[data-speed-step]").forEach(button=>{
-    button.addEventListener("click",()=>{
-      const slider=$("speed");
-      speed=Math.max(30,Math.min(100,speed+Number(button.dataset.speedStep)));
-      slider.value=String(speed);
-      $("speedValue").textContent=speed+"%";
-      request("/config",{velocidade:speed});
-    });
-  });
 
   async function refresh(){
     if(!local)return;
