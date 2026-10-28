@@ -25,17 +25,17 @@ Projeto acadêmico de um carrinho robô com **dois motores DC**, controle por **
 | Servidor Wi-Fi com IP no Monitor Serial | Implementado como AP local |
 | Cliente no segundo ESP32 com comandos no Serial | Implementado; exemplo simples da etapa 27/10 disponível |
 | Controle remoto pelo segundo ESP32 | Código integrado implementado; entrega em 04/11 |
-| Controle por página web | Exemplo independente com joystick visual e comandos simples; versão integrada com joystick proporcional preservada; entregas em 11/11 e 18/11 |
+| Controle por página web | Etapa 04 com **interface original completa restaurada**, incluindo joystick, faróis, sensibilidade e velocidade; entregas em 11/11 e 18/11 |
 | Acelerar e desacelerar nos **dois** tipos de controle | Web e servidor permitem ajuste; faltam comandos dedicados no controle físico |
 | Içar peso com servomotor | **Pendente** (25/11) |
 | Reserva de IP no roteador | **Pendente ou a esclarecer**: o projeto usa IP próprio de AP |
 
 ### O que foi simplificado
 
-- Interface web integrada reorganizada: **direção, velocidade e PARAR** em destaque; faróis e sensibilidade em seção opcional.
-- Criado **um exemplo completo e separado na etapa 04**, com sketch ESP32, joystick circular no visual original (quatro direções), HTML, cabeçalho da página e configuração Wi-Fi.
-- Botões de **acelerar/desacelerar** na página, além do controle de velocidade por slider.
-- Pequenos códigos independentes por etapa, sem copiar o firmware grande em todas as pastas.
+- **Interface original do vídeo restaurada**: joystick circular, controles de faróis à direita, sensor de luz, velocidade e botão PARAR.
+- A **etapa 04** contém uma cópia identificada do firmware integrado e o **mesmo HTML original** para que a dupla consiga estudá-la e gravá-la como um sketch independente.
+- Ajuste de velocidade pela **barra deslizante**, como no vídeo. O servidor continua aceitando comandos de acelerar/desacelerar pelo controle compatível.
+- Exemplos pequenos nas etapas iniciais. Na etapa 04, a cópia do firmware maior é uma exceção para preservar as funcionalidades do painel.
 - Documentação separa o **que já funciona fisicamente** do **que existe somente no código**.
 
 Mantivemos o firmware integrado e seus recursos já funcionais. A cópia anterior a esta reorganização permanece na branch **[`backup/antes-da-simplificacao-2026-10-28`](https://github.com/Dhaniels1/carrinho-iot-esp32/tree/backup/antes-da-simplificacao-2026-10-28)**.
