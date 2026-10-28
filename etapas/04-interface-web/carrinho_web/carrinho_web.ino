@@ -68,8 +68,12 @@ void receberComando() {
     pararMotores();
   } else if (valor == "acelerar" || valor == "desacelerar") {
     velocidade = constrain(velocidade + (valor == "acelerar" ? 10 : -10), 30, 100);
-    // Se estava se movendo, atualiza a potencia sem mudar a direcao.
-    if (movimento != "parar") mover(movimento);
+    // Copia a direcao ANTES de mover(): pararMotores() altera o estado global.
+    // Passar a String global por referencia faria o movimento virar "parar".
+    if (movimento != "parar") {
+      const String direcaoAnterior = movimento;
+      mover(direcaoAnterior);
+    }
   } else if (valor == "frente" || valor == "re" ||
              valor == "esquerda" || valor == "direita") {
     mover(valor);
