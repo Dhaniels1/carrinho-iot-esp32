@@ -24,7 +24,7 @@ const int SENSOR_LUZ = 34;
 
 // ================= PARAMETROS E ESTADOS =================
 
-int velocidadePercentual = 100; // 30 a 100
+int velocidadePercentual = 30; // 30 a 100; partida conservadora
 int limiteEscuro = 300;
 const int DIFERENCA_CLARO = 150; // histerese
 String modoFarol = "auto";       // auto, ligar, desligar
@@ -50,16 +50,28 @@ const unsigned long TIMEOUT_MOVIMENTO = 1100;
 // Valores negativos invertem o sentido de rotacao.
 // Os valores 243 e 240 continuam sendo as potencias maximas calibradas.
 void aplicarMotores(int esquerda, int direita) {
-  comandoEsquerda = constrain(esquerda, -100, 100);
-  comandoDireita = constrain(direita, -100, 100);
+  const int novaEsquerda = constrain(esquerda, -100, 100);
+  const int novaDireita = constrain(direita, -100, 100);
+  const int pwmE = VEL_ESQUERDA_BASE * velocidadePercentual * abs(novaEsquerda) / 10000;
+  const int pwmD = VEL_DIREITA_BASE * velocidadePercentual * abs(novaDireita) / 10000;
 
-  int pwmE = VEL_ESQUERDA_BASE * velocidadePercentual * abs(comandoEsquerda) / 10000;
-  int pwmD = VEL_DIREITA_BASE * velocidadePercentual * abs(comandoDireita) / 10000;
+  // Desliga as entradas antes de mudar o sentido: evita dois pinos do
+  // mesmo motor ativos durante a troca de direcao.
+  ledcWrite(IN1, 0);
+  ledcWrite(IN2, 0);
+  ledcWrite(IN3, 0);
+  ledcWrite(IN4, 0);
+  if ((comandoDireita * novaDireita < 0) ||
+      (comandoEsquerda * novaEsquerda < 0)) {
+    delayMicroseconds(100); // pequeno intervalo em uma inversao de sentido
+  }
 
-  ledcWrite(IN1, comandoDireita < 0 ? pwmD : 0);
-  ledcWrite(IN2, comandoDireita > 0 ? pwmD : 0);
-  ledcWrite(IN3, comandoEsquerda < 0 ? pwmE : 0);
-  ledcWrite(IN4, comandoEsquerda > 0 ? pwmE : 0);
+  ledcWrite(IN1, novaDireita < 0 ? pwmD : 0);
+  ledcWrite(IN2, novaDireita > 0 ? pwmD : 0);
+  ledcWrite(IN3, novaEsquerda < 0 ? pwmE : 0);
+  ledcWrite(IN4, novaEsquerda > 0 ? pwmE : 0);
+  comandoEsquerda = novaEsquerda;
+  comandoDireita = novaDireita;
 }
 
 void parar() {
@@ -174,6 +186,7 @@ void atualizarLEDs() {
 // Compatibilidade com os quatro botoes do controle fisico.
 void receberComando() {
   if (!servidor.hasArg("valor")) {
+    parar();
     servidor.send(400, "text/plain", "Faltando valor");
     return;
   }
@@ -188,6 +201,7 @@ void receberComando() {
     configuracoes.putInt("vel", velocidadePercentual);
     aplicarMotores(comandoEsquerda, comandoDireita);
   } else {
+    parar();
     servidor.send(400, "text/plain", "Comando desconhecido");
     return;
   }
@@ -196,6 +210,7 @@ void receberComando() {
 
 void receberJoystick() {
   if (!servidor.hasArg("x") || !servidor.hasArg("y")) {
+    parar();
     servidor.send(400, "text/plain", "Faltam x e y");
     return;
   }
@@ -262,7 +277,9 @@ void setup() {
 
   for (int p : {IN1, IN2, IN3, IN4}) {
     pinMode(p, OUTPUT);
+    digitalWrite(p, LOW); // estado seguro antes de ativar o PWM
     ledcAttach(p, 5000, 8);
+    ledcWrite(p, 0);
   }
   for (int p : {LED_R, LED_G, LED_B}) ledcAttach(p, 5000, 8);
   pinMode(SENSOR_LUZ, INPUT);
@@ -270,7 +287,7 @@ void setup() {
   escreverRGB(0, 0, 0);
 
   configuracoes.begin("carrinho", false);
-  velocidadePercentual = constrain(configuracoes.getInt("vel", 100), 30, 100);
+  velocidadePercentual = constrain(configuracoes.getInt("vel", 30), 30, 100);
   limiteEscuro = constrain(configuracoes.getInt("limite", 300), 100, 900);
   modoFarol = configuracoes.getString("farol", "auto");
   if (modoFarol != "auto" && modoFarol != "ligar" && modoFarol != "desligar")
