@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etapa 04 | Controle do carrinho</title>
+<style>
+:root{font:16px system-ui,-apple-system,"Segoe UI",sans-serif;color:#eaf1fb;background:#101827}
+*{box-sizing:border-box}
+body{margin:0}
+main{max-width:580px;margin:25px auto;padding:0 17px 28px}
+h1{font-size:1.55rem;margin:0 0 7px}
+p{line-height:1.5}
+.info{color:#b6c7e0;font-size:.86rem}
+.aviso{background:#26374e;border:1px solid #49617e;border-radius:12px;padding:14px;font-size:.85rem}
+section{background:#1c2a3d;border:1px solid #344861;border-radius:14px;margin-top:18px;padding:18px}
+h2{margin:0 0 16px;font-size:1.1rem}
+.direcoes{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-width:340px;margin:auto}
+button{font:inherit;border:1px solid #7d97b4;border-radius:10px;min-height:54px;background:#315a91;color:white;cursor:pointer;touch-action:none}
+button:active,.direcao.ativo{background:#4c86ce}
+button:focus-visible,input:focus-visible{outline:3px solid #ffd36e;outline-offset:3px}
+.direcoes [data-comando="frente"]{grid-column:2}
+.direcoes [data-comando="esquerda"]{grid-column:1}
+.direcoes [data-comando="parar"]{grid-column:2;background:#b53751;font-weight:800}
+.direcoes [data-comando="direita"]{grid-column:3}
+.direcoes [data-comando="re"]{grid-column:2}
+.velocidade{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.velocidade button{min-width:110px;background:#294865}
+strong{font-variant-numeric:tabular-nums}
+.estado{margin:18px 0 0;color:#9ae2b9;font-weight:700}
+.rodape{font-size:.79rem;color:#aec0d9;margin-top:20px}
+@media(max-width:390px){.velocidade button{min-width:100px}}
+</style>
+</head>
+<body>
+<main>
+<h1>Controle do Carrinho</h1>
+<p class="info">Etapa 04 • ESP32, dois motores e página web</p>
+<div class="aviso" id="aviso" role="note">Preparando interface…</div>
+<section>
+<h2>Direção</h2>
+<div class="direcoes" aria-label="Controles de movimento">
+<button class="direcao" data-comando="frente">▲ Frente</button>
+<button class="direcao" data-comando="esquerda">◀ Esquerda</button>
+<button data-comando="parar" id="parar">■ PARAR</button>
+<button class="direcao" data-comando="direita">Direita ▶</button>
+<button class="direcao" data-comando="re">▼ Ré</button>
+</div>
+<p class="info">Mantenha pressionado para mover. Solte para parar.</p>
+</section>
+<section>
+<h2>Velocidade máxima</h2>
+<div class="velocidade">
+<button id="menos">− Desacelerar</button>
+<strong id="velocidade">30%</strong>
+<button id="mais">+ Acelerar</button>
+</div>
+<p class="info">Entre 30% e 100% da potência calibrada.</p>
+</section>
+<p class="estado" id="estado" role="status" aria-live="polite">Parado</p>
+<p class="rodape">Na versão publicada ou aberta como arquivo, os botões apenas demonstram a interface. Para mover o carrinho físico, conecte-se à rede Wi-Fi dele e abra http://192.168.4.1/. Teste com rodas suspensas. O PARAR do navegador não substitui um desligamento elétrico.</p>
+</main>
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const local = location.hostname === "192.168.4.1";
+  $("aviso").textContent = local
+    ? "Conectado ao endereço do ESP32. Comandos enviados por Wi-Fi local."
+    : "Modo demonstração: nenhum comando é enviado a motores.";
+  let velocidade = 30;
+  let comandoAtivo = null;
+  let repeticao = null;
+  let pendente = null;
+  let enviando = false;
+
+  // Apenas um pedido por vez. O PARAR substitui um movimento pendente.
+  async function enviarEmOrdem() {
+    if (enviando || !local) return;
+    enviando = true;
+    try {
+      while (pendente !== null) {
+        const comando = pendente;
+        pendente = null;
+        try {
+          const resposta = await fetch("/comando?valor=" + encodeURIComponent(comando), {cache:"no-store"});
+          if (!resposta.ok) throw new Error("HTTP " + resposta.status);
+        } catch (erro) {
+          $("estado").textContent = "Sem comunicação: " + erro.message;
+        }
+      }
+    } finally {
+      enviando = false;
+    }
+  }
+  function enviar(comando) {
+    pendente = comando;
+    enviarEmOrdem();
+  }
+  function parar() {
+    clearInterval(repeticao);
+    repeticao = null;
+    comandoAtivo = null;
+    document.querySelectorAll(".direcao").forEach(b => b.classList.remove("ativo"));
+    $("estado").textContent = local ? "Parada solicitada" : "Simulação: parado";
+    enviar("parar");
+  }
+  document.querySelectorAll(".direcao").forEach(botao => {
+    botao.addEventListener("pointerdown", e => {
+      if (comandoAtivo !== null) return;
+      e.preventDefault();
+      comandoAtivo = botao.dataset.comando;
+      botao.classList.add("ativo");
+      botao.setPointerCapture(e.pointerId);
+      $("estado").textContent = (local ? "Movimento: " : "Simulação: ") + comandoAtivo;
+      enviar(comandoAtivo);
+      repeticao = setInterval(() => enviar(comandoAtivo), 250);
+    });
+    ["pointerup","pointercancel","lostpointercapture"].forEach(ev =>
+      botao.addEventListener(ev, parar));
+  });
+  $("parar").addEventListener("click", parar);
+  window.addEventListener("blur", parar);
+  document.addEventListener("visibilitychange", () => {if (document.hidden) parar();});
+
+  function ajustar(delta) {
+    velocidade = Math.max(30, Math.min(100, velocidade + delta));
+    $("velocidade").textContent = velocidade + "%";
+    enviar(delta > 0 ? "acelerar" : "desacelerar");
+  }
+  $("mais").addEventListener("click", () => ajustar(10));
+  $("menos").addEventListener("click", () => ajustar(-10));
+})();
+</script>
+</body>
+</html>
