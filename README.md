@@ -2,6 +2,10 @@
 
 Carrinho acadêmico com controle físico por Wi-Fi e painel web com joystick virtual, ajustes de velocidade, faróis e sensor de luminosidade.
 
+## Histórico por etapas
+
+A documentação do desenvolvimento está organizada em [etapas/](etapas/README.md), com registros dos testes do ESP32, motores, controle Wi-Fi e interface web. As pastas **05-servo-motor** e **06-projeto-final** estão reservadas, sem código por enquanto. Os sketches históricos ainda não localizados estão identificados como pendentes; o firmware atual permanece em `firmware/`.
+
 ## Estado do projeto
 
 | Recurso | Status |
