@@ -38,9 +38,9 @@ jobs:
           pasta = Path("etapas/04-interface-web/carrinho_web")
           html = (pasta / "pagina.html").read_text(encoding="utf-8")
           cabecalho = (pasta / "pagina.h").read_text(encoding="utf-8")
-          embedded = re.search(r'R"ETAPA04HTML\\(\\n(.*?)\\n\\)ETAPA04HTML";', cabecalho, re.S)
+          embedded = re.search(r'R"ETAPA04HTML\(\n(.*?)\n\)ETAPA04HTML";', cabecalho, re.S)
           assert embedded and embedded.group(1) == html, "Etapa 04: pagina.h diverge de pagina.html"
-          script = re.search(r'<script>\\n(.*?)\\n</script>', html, re.S)
+          script = re.search(r'<script>\n(.*?)\n</script>', html, re.S)
           assert script, "Etapa 04: JavaScript ausente"
           Path("/tmp/carrinho-etapa04.js").write_text(script.group(1), encoding="utf-8")
           PY
