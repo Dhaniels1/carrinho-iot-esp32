@@ -43,3 +43,12 @@ jobs:
           cp firmware/carrinho/secrets.h.example firmware/carrinho/secrets.h
           arduino-cli compile --fqbn esp32:esp32:esp32 firmware/carrinho
           arduino-cli compile --fqbn esp32:esp32:esp32 firmware/controle
+
+      - name: Compilar exemplos independentes das etapas
+        run: |
+          cp etapas/03-controle-wifi/servidor_basico/secrets.h.example etapas/03-controle-wifi/servidor_basico/secrets.h
+          arduino-cli compile --fqbn esp32:esp32:esp32 etapas/01-testes-iniciais/serial_basico
+          arduino-cli compile --fqbn esp32:esp32:esp32 etapas/02-motores/teste_motores
+          arduino-cli compile --fqbn esp32:esp32:esp32 etapas/02-motores/teste_farois
+          arduino-cli compile --fqbn esp32:esp32:esp32 etapas/03-controle-wifi/servidor_basico
+          arduino-cli compile --fqbn esp32:esp32:esp32 etapas/03-controle-wifi/cliente_basico
