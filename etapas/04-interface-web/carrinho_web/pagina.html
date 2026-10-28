@@ -4,210 +4,251 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#080b10">
-<meta name="description" content="Etapa 04: controle do carrinho ESP32 por navegador">
-<title>Carrinho IoT | Etapa 04</title>
+<title>Carrinho IoT | Painel</title>
 <style>
-:root{font:16px system-ui,-apple-system,"Segoe UI",sans-serif;color:#f7f9ff;background:#080b10;color-scheme:dark}
+:root{font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#f7f9ff;background:#080b10;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:radial-gradient(circle at 55% 0,#192b46 0,#0b101a 38%,#080b10 75%)}
-main{width:min(1000px,100%);margin:auto;padding:25px 20px 44px}
+body{margin:0;background:radial-gradient(circle at 55% 0,#192b46 0,#0b101a 36%,#080b10 72%);min-height:100vh}
+main{width:min(1060px,100%);margin:auto;padding:22px 20px 44px}
 header{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:22px}
 .eyebrow{font-size:11px;font-weight:800;letter-spacing:.15em;color:#7caee9;margin:0 0 8px}
-h1{font-size:clamp(25px,4vw,36px);margin:0;letter-spacing:-.04em}
-.subtitle{font-size:13px;color:#96a8c2;margin:7px 0 0}
-.pill{border:1px solid #2b3f60;background:#142139;border-radius:99px;padding:9px 13px;font-size:12px;color:#bdcce0}
-.notice{background:#17253b;border:1px solid #2e415f;border-radius:12px;padding:13px 15px;margin:0 0 17px;color:#b8c9de;font-size:13px;line-height:1.55}
-.top{display:grid;grid-template-columns:1fr 1.05fr;gap:18px;align-items:stretch}
+h1{font-size:clamp(24px,4vw,36px);margin:0;letter-spacing:-.035em}
+.subtitle{font-size:13px;color:#96a8c2;margin-top:7px}
+.pill{border:1px solid #2b3f60;background:#142139;border-radius:999px;padding:9px 13px;font-size:12px;color:#bdcce0}
+.notice{background:#17253b;border:1px solid #2e415f;border-radius:12px;padding:11px 14px;margin-bottom:16px;color:#b8c9de;font-size:13px;line-height:1.5}
 .panel{background:#0e131c;border:1px solid #263141;border-radius:19px;padding:22px;box-shadow:0 16px 42px #0004}
-h2{font-size:16px;margin:0 0 17px}
-.joystick-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:340px}
+.top{display:grid;grid-template-columns:minmax(280px,1fr) minmax(270px,1.18fr);gap:18px;align-items:stretch}
+h2{font-size:15px;margin:0 0 17px}
+.joystick-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:328px}
 .joystick-panel h2{align-self:stretch}
-.pad{width:234px;height:234px;position:relative;touch-action:none;cursor:grab;border:2px solid #39485d;background:radial-gradient(circle,#15273e 0,#090f18 68%);border-radius:50%;box-shadow:inset 0 0 28px #0008;outline-offset:4px}
+.pad{width:234px;height:234px;position:relative;touch-action:none;cursor:grab;border:2px solid #39485d;background:radial-gradient(circle,#15273e 0,#090f18 68%);border-radius:50%;box-shadow:inset 0 0 28px #0008}
 .pad:active{cursor:grabbing}
-.pad:before{content:"";position:absolute;inset:27px;border-radius:50%;border:1px solid #2a3a4d;pointer-events:none}
-.pad:after{content:"";position:absolute;left:50%;top:50%;width:83%;height:1px;background:#243247;transform:translate(-50%,-50%);pointer-events:none}
-.vertical{position:absolute;left:50%;top:9%;height:82%;width:1px;background:#243247;pointer-events:none}
-.knob{position:absolute;left:calc(50% - 39px);top:calc(50% - 39px);width:78px;height:78px;border-radius:50%;border:1px solid #6ba8e6;background:linear-gradient(140deg,#5db5f5,#245eaf);box-shadow:0 7px 22px #0a4eab80;display:grid;place-items:center;font-size:26px;pointer-events:none;will-change:transform;z-index:1}
-.joystate{font-size:13px;color:#c1d4ed;margin:16px 0 6px;min-height:20px}
+.pad:before{content:"";position:absolute;inset:28px;border-radius:50%;border:1px solid #2a3a4d}
+.pad:after{content:"";position:absolute;left:50%;top:50%;width:85%;height:1px;background:#243247;transform:translate(-50%,-50%);pointer-events:none}
+.vertical{position:absolute;left:50%;top:8%;height:84%;width:1px;background:#243247;pointer-events:none}
+.knob{position:absolute;left:calc(50% - 39px);top:calc(50% - 39px);width:78px;height:78px;border-radius:50%;border:1px solid #6ba8e6;background:linear-gradient(140deg,#5db5f5,#245eaf);box-shadow:0 7px 22px #0a4eab80;display:grid;place-items:center;font-size:25px;pointer-events:none;will-change:transform}
+.joystate{font-size:13px;color:#c1d4ed;margin-top:16px;min-height:22px}
 .dot{width:7px;height:7px;background:#71cfa7;display:inline-block;border-radius:50%;margin-right:7px}
-.small{font-size:12px;color:#91a3bc;text-align:center;line-height:1.6}
-.settings{display:flex;flex-direction:column;justify-content:center;gap:19px}
-.field-top{font-size:11px;font-weight:800;letter-spacing:.11em;color:#79b9ee;margin:0}
-.feature{border:1px solid #2a3a50;background:#131d2b;padding:17px 18px;border-radius:13px}
-.feature-head{display:flex;justify-content:space-between;gap:12px;align-items:center}
-.feature-head strong{font-size:14px}
-.feature-badge{background:#164c40;border:1px solid #2b7a63;border-radius:30px;color:#b0edd4;padding:5px 9px;font-size:11px}
-.feature p{color:#a3b5ce;font-size:12px;line-height:1.7;margin:9px 0 0}
-.step-list{display:grid;gap:12px}
-.step{display:flex;gap:13px;align-items:center;color:#bdcce0;font-size:13px}
-.step i{flex-shrink:0;width:27px;height:27px;border-radius:9px;display:grid;place-items:center;background:#223755;border:1px solid #3e5a80;font-style:normal;color:#9ecbff;font-weight:800;font-size:11px}
+.small{font-size:12px;color:#91a3bc}
+.settings{display:grid;gap:19px;align-content:center}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:4px;background:#080c12;border-radius:12px}
+.mode{background:transparent;border:0;color:#aebbd0;padding:11px 8px;font-weight:650;font-size:13px;border-radius:9px;cursor:pointer}
+.mode.active{background:#263954;color:white;box-shadow:0 2px 10px #0005}
+.mode:focus-visible,.stop:focus-visible,.pad:focus-visible{outline:2px solid #7bc0ff;outline-offset:3px}
+.setting-note{margin:9px 0 0;font-size:12px;color:#96a9c3;min-height:30px}
+.divider{height:1px;background:#263246}
+.slider-head{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:14px;font-weight:700;margin-bottom:12px}
+output{font-size:16px;color:#a8d5ff;font-weight:800}
+input[type=range]{width:100%;accent-color:#60a9ef;cursor:pointer;display:block;margin:10px 0}
+.ends{display:flex;justify-content:space-between;color:#8298b5;font-size:11px;gap:12px}
+.meter{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:#9cb6d8;margin-top:10px}
 .bottom{margin-top:18px}
-.slider-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.slider-head h2{font-size:20px;margin:0}
-#velocidade{font-size:23px;font-weight:800;color:#dcefff;font-variant-numeric:tabular-nums}
-.speed-meter{height:8px;border-radius:30px;background:#223146;overflow:hidden;margin:15px 0 9px}
-#progress{height:100%;width:30%;background:linear-gradient(90deg,#488dea,#7fc3fb);border-radius:30px;transition:width .12s}
-.speed-actions{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:13px}
-.speed-actions button{border:1px solid #3a5475;background:#1b314e;border-radius:10px;color:#d0e5fb;padding:12px 16px;font-weight:750;font-size:13px;cursor:pointer;min-height:44px}
-.speed-actions button:hover{background:#26456d}
-.ends{display:flex;justify-content:space-between;gap:10px;color:#8198b6;font-size:11px}
-.actions{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;margin-top:20px}
+.bottom h2{font-size:20px;margin-bottom:15px}
+.bottom output{font-size:22px;color:white}
+.actions{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-top:21px}
+.stop{background:#cf3451;border:1px solid #fa7a93;border-radius:13px;padding:14px 25px;color:white;font-size:14px;font-weight:900;cursor:pointer;min-width:168px}
 .status{font-size:13px;color:#83d9b7;font-weight:700}
 .status.error{color:#ffadb9}
-.stop{background:#cf3451;border:1px solid #fa7a93;border-radius:13px;padding:14px 25px;color:white;font-size:14px;font-weight:900;cursor:pointer;min-width:168px}
-button:focus-visible,.pad:focus-visible{outline:3px solid #ffd378;outline-offset:4px}
-footer{margin-top:18px;color:#8495ae;font-size:12px;line-height:1.7;text-align:center}
-@media(max-width:720px){main{padding:17px 12px 36px}.top{grid-template-columns:1fr}.panel{padding:18px}.joystick-panel{min-height:318px}.pad{width:220px;height:220px}.actions{align-items:stretch}.stop{width:100%}.settings{gap:15px}}
-@media(prefers-reduced-motion:reduce){#progress{transition:none}}
+footer{margin-top:14px;font-size:12px;color:#8495ae;text-align:center;line-height:1.5}
+@media(max-width:720px){main{padding:16px 12px 36px}.top{grid-template-columns:1fr}.panel{padding:18px}.joystick-panel{min-height:304px}.pad{width:220px;height:220px}.actions{align-items:stretch}.stop{width:100%}}
 </style>
 </head>
 <body>
 <main>
 <header>
- <div><p class="eyebrow">ESP32 · WI-FI · ETAPA 04</p><h1>Painel do Carrinho</h1><p class="subtitle">Joystick, velocidade e iluminação em uma única tela</p></div>
+ <div><p class="eyebrow">ESP32 · WI-FI · CONTROLE</p><h1>Painel do Carrinho</h1><div class="subtitle">Joystick, faróis e calibração em uma única tela</div></div>
  <span class="pill" id="modeLabel">Verificando...</span>
 </header>
-<div class="notice" id="notice" role="note">Preparando controle...</div>
+<div class="notice" id="notice">Preparando controle...</div>
 <div class="top">
- <section class="panel joystick-panel" aria-labelledby="joystick-title">
-  <h2 id="joystick-title">Joystick virtual</h2>
-  <div class="pad" id="pad" tabindex="0" role="group" aria-label="Joystick: arraste para mover ou use as setas do teclado; solte para parar">
-   <div class="vertical" aria-hidden="true"></div><div class="knob" id="knob" aria-hidden="true">✥</div>
+ <section class="panel joystick-panel">
+  <h2>Joystick virtual</h2>
+  <div class="pad" id="pad" role="group" aria-label="Joystick virtual: arraste para mover o carrinho">
+   <div class="vertical"></div><div class="knob" id="knob">✥</div>
   </div>
-  <div class="joystate"><span class="dot" aria-hidden="true"></span><span id="direction">Parado</span></div>
-  <div class="small">Arraste para dirigir · solte para parar<br>Ou utilize as setas do teclado</div>
+  <div class="joystate"><span class="dot"></span><span id="direction">Parado</span></div>
+  <div class="small">Arraste para dirigir · solte para parar</div>
  </section>
- <section class="panel settings" aria-labelledby="settings-title">
+ <section class="panel settings">
   <div>
-    <p class="field-top">RECURSOS DO CARRINHO</p>
-    <h2 id="settings-title" style="margin:7px 0 0">Faróis e sinalização</h2>
+   <h2>◉ &nbsp; Controle dos faróis</h2>
+   <div class="modes">
+    <button type="button" class="mode active" data-farol="auto">Auto</button>
+    <button type="button" class="mode" data-farol="ligar">Ligar</button>
+    <button type="button" class="mode" data-farol="desligar">Desligar</button>
+   </div>
+   <div class="setting-note" id="farolInfo">O sensor de luz decide quando acender os LEDs.</div>
   </div>
-  <div class="feature">
-    <div class="feature-head"><strong>◉ Faróis por sensor de luz</strong><span class="feature-badge">Automático</span></div>
-    <p>O ESP32 lê o sensor LDR e acende os LEDs quando o ambiente fica escuro. Ao virar, os LEDs piscam em laranja.</p>
+  <div class="divider"></div>
+  <div>
+   <div class="slider-head"><label for="sensitivity">Sensibilidade do sensor</label><output id="sensitivityValue">300</output></div>
+   <input id="sensitivity" type="range" min="100" max="900" step="25" value="300">
+   <div class="ends"><span>Mais escuro para ligar</span><span>Acende mais cedo</span></div>
+   <div class="meter"><span>Leitura LDR: <strong id="ldr">--</strong></span><span>Farol: <strong id="farolStatus">--</strong></span></div>
   </div>
-  <div class="step-list">
-   <div class="step"><i>01</i><span>Conecte-se ao Wi-Fi do carrinho</span></div>
-   <div class="step"><i>02</i><span>Movimente o joystick para escolher a direção</span></div>
-   <div class="step"><i>03</i><span>Solte o joystick ou toque em PARAR</span></div>
-  </div>
-  <p class="small" style="text-align:left">Nesta etapa, o joystick usa quatro direções básicas. O movimento proporcional fica na versão integrada.</p>
  </section>
 </div>
-<section class="panel bottom" aria-labelledby="speed-title">
- <div class="slider-head"><h2 id="speed-title">Velocidade máxima</h2><output id="velocidade" aria-live="polite">30%</output></div>
- <div class="speed-meter" role="img" aria-label="Indicador visual da velocidade"><div id="progress"></div></div>
+<section class="panel bottom">
+ <div class="slider-head"><h2><label for="speed">Velocidade máxima</label></h2><output id="speedValue">30%</output></div>
+ <input id="speed" type="range" min="30" max="100" step="10" value="30">
  <div class="ends"><span>30% · mais lento</span><span>100% · potência calibrada</span></div>
- <div class="speed-actions">
-   <button id="menos" type="button">− Desacelerar</button>
-   <button id="mais" type="button">+ Acelerar</button>
- </div>
  <div class="actions">
-  <div class="status" id="status" role="status" aria-live="polite">Parado</div>
+  <div class="status" id="status" role="status">Parado</div>
   <button type="button" class="stop" id="stop">■ &nbsp; PARAR</button>
  </div>
 </section>
-<footer>Esta página fora do ESP32 é apenas uma simulação; não envia comandos para motores. Para controlar o carrinho físico, conecte-se à rede local dele e abra <strong>http://192.168.4.1/</strong>. Teste primeiro com as rodas suspensas e tenha acesso ao corte de energia. PARAR não é um desligamento físico.</footer>
+<footer>Teste primeiro com as rodas suspensas. Esta página pública é apenas uma demonstração; para controlar o carrinho real, conecte-se ao Wi-Fi dele e abra http://192.168.4.1/.</footer>
 </main>
 <script>
-(() => {
+(function(){
   "use strict";
   const $ = id => document.getElementById(id);
   const local = location.hostname === "192.168.4.1";
-  const pad = $("pad"), knob = $("knob"), status = $("status");
-  let velocidade = 30, comando = "parar", pointer = null, repeticao = null;
-  let pendente = null, enviando = false;
+  const status = $("status"), pad = $("pad"), knob = $("knob");
+  const tips = {
+    auto:"O sensor de luz decide quando acender os LEDs.",
+    ligar:"Os LEDs ficam ligados, mesmo com o ambiente claro.",
+    desligar:"Faróis apagados manualmente; as setas continuam funcionando."
+  };
+  let activePointer = null, x = 0, y = 0, tick = null, lastSent = 0;
+  let enviandoJoystick = false, joystickPendente = null;
+  let farol = "auto", speed = 30, sensitivity = 300;
   $("modeLabel").textContent = local ? "● Rede local · ESP32" : "◉ Demonstração · Web";
   $("notice").textContent = local
-    ? "Controle local: os comandos são enviados por Wi-Fi para o ESP32."
-    : "Modo demonstração: experimente o joystick e os ajustes sem movimentar nenhum motor.";
+    ? "Controle local: comandos enviados diretamente ao ESP32. O joystick para ao ser solto."
+    : "Esta é uma demonstração interativa. Para mover o carrinho real, abra http://IP-DO-CARRINHO no navegador conectado ao mesmo Wi-Fi.";
 
-  // A pagina usa somente a rota /comando do firmware simples da etapa 04.
-  async function enviarFila() {
-    if (enviando || !local) return;
-    enviando = true;
+  async function request(path, params, showError = true){
+    if (!local) return null;
+    try{
+      const query = new URLSearchParams(params);
+      const response = await fetch(path + "?" + query, {cache:"no-store"});
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      status.classList.remove("error");
+      return response;
+    }catch(err){
+      if (showError) { status.classList.add("error"); status.textContent = "Falha de comunicação: " + err.message; }
+      return null;
+    }
+  }
+  function direction(){
+    if (!x && !y) return "Parado";
+    if (y < -20) return x < -25 ? "Frente + esquerda" : x > 25 ? "Frente + direita" : "Frente";
+    if (y > 20) return x < -25 ? "Ré + esquerda" : x > 25 ? "Ré + direita" : "Ré";
+    return x < 0 ? "Esquerda" : "Direita";
+  }
+  function renderJoystick(){
+    const range = (pad.clientWidth - knob.clientWidth) / 2;
+    knob.style.transform = "translate(" + (x*range/100) + "px," + (y*range/100) + "px)";
+    $("direction").textContent = direction();
+    if (!local) status.textContent = "Simulação: " + direction();
+    else if (!status.classList.contains("error")) status.textContent = direction();
+  }
+  // Envia uma requisicao por vez, evitando ultrapassagem do comando de parada.
+  async function enviarJoystickEmOrdem(){
+    if (!local || enviandoJoystick) return;
+    enviandoJoystick = true;
     try {
-      while (pendente !== null) {
-        const proximo = pendente;
-        pendente = null;
-        try {
-          const resposta = await fetch("/comando?valor=" + encodeURIComponent(proximo), {cache:"no-store"});
-          if (!resposta.ok) throw new Error("HTTP " + resposta.status);
-          status.classList.remove("error");
-        } catch (erro) {
-          status.classList.add("error");
-          status.textContent = "Falha na comunicação: " + erro.message;
-        }
+      while (joystickPendente !== null) {
+        const proximo = joystickPendente;
+        joystickPendente = null;
+        await request("/joystick", proximo, false);
       }
-    } finally { enviando = false; }
+    } finally {
+      enviandoJoystick = false;
+    }
   }
-  function enviar(valor) { pendente = valor; enviarFila(); }
-  function visualizar(direcao, px = 0, py = 0) {
-    comando = direcao;
-    const raio = (pad.clientWidth - knob.clientWidth)/2;
-    knob.style.transform = "translate(" + (px*raio) + "px," + (py*raio) + "px)";
-    $("direction").textContent = direcao === "parar" ? "Parado" : direcao.charAt(0).toUpperCase()+direcao.slice(1);
-    if (!status.classList.contains("error")) status.textContent =
-      (local ? "Movimento: " : "Simulação: ") + (direcao === "parar" ? "parado" : direcao);
+  function transmit(force){
+    const now = Date.now();
+    if (!force && now - lastSent < 90) return;
+    lastSent = now;
+    joystickPendente = {x:x, y:y};
+    enviarJoystickEmOrdem();
   }
-  function definirDirecao(direcao, px, py) {
-    if (comando !== direcao) enviar(direcao);
-    visualizar(direcao, px, py);
-  }
-  function apontar(e) {
+  function pointerPosition(event){
     const rect = pad.getBoundingClientRect();
-    const raio = (rect.width - knob.clientWidth)/2;
-    let px = e.clientX - rect.left - rect.width/2;
-    let py = e.clientY - rect.top - rect.height/2;
-    const dist = Math.hypot(px, py);
-    if (dist > raio) { px *= raio/dist; py *= raio/dist; }
-    const normalX = px/raio, normalY = py/raio;
-    let dir = "parar";
-    if (dist > 25) dir = Math.abs(py) >= Math.abs(px) ?
-      (py < 0 ? "frente" : "re") : (px < 0 ? "esquerda" : "direita");
-    definirDirecao(dir, normalX, normalY);
+    const radius = (rect.width - knob.clientWidth)/2;
+    let px = event.clientX - rect.left - rect.width/2;
+    let py = event.clientY - rect.top - rect.height/2;
+    const length = Math.hypot(px,py);
+    if (length > radius){px = px * radius / length; py = py * radius / length;}
+    x = Math.round(px / radius * 100); y = Math.round(py / radius * 100);
+    if (Math.hypot(x,y) < 12){x=0;y=0;}
+    renderJoystick();
+    transmit(false);
   }
-  function parar() {
-    clearInterval(repeticao); repeticao = null; pointer = null;
-    visualizar("parar");
-    enviar("parar");
+  function release(){
+    if (tick !== null){clearInterval(tick);tick=null;}
+    if (activePointer === null && x===0 && y===0) return;
+    activePointer = null; x=0; y=0; renderJoystick();
+    transmit(true);
   }
-  pad.addEventListener("pointerdown", e => {
-    if (pointer !== null) return;
-    e.preventDefault();
-    pointer = e.pointerId;
-    pad.setPointerCapture(e.pointerId);
-    apontar(e);
-    repeticao = setInterval(() => { if (comando !== "parar") enviar(comando); }, 250);
+  pad.addEventListener("pointerdown",event=>{
+    if(activePointer!==null) return;
+    event.preventDefault();
+    activePointer=event.pointerId;
+    pad.setPointerCapture(event.pointerId);
+    pointerPosition(event); transmit(true);
+    tick=setInterval(()=>transmit(true),180);
   });
-  pad.addEventListener("pointermove", e => { if (pointer === e.pointerId) apontar(e); });
-  ["pointerup","pointercancel","lostpointercapture"].forEach(evento =>
-    pad.addEventListener(evento, () => { if (pointer !== null) parar(); })
-  );
-  const teclas = {ArrowUp:["frente",0,-1],ArrowDown:["re",0,1],
-    ArrowLeft:["esquerda",-1,0],ArrowRight:["direita",1,0]};
-  pad.addEventListener("keydown", e => {
-    if (!teclas[e.key]) return;
-    e.preventDefault();
-    const [dir, x, y] = teclas[e.key];
-    if (repeticao === null) repeticao = setInterval(() => { if(comando !== "parar") enviar(comando); }, 250);
-    definirDirecao(dir, x, y);
+  pad.addEventListener("pointermove",event=>{if(activePointer===event.pointerId)pointerPosition(event);});
+  ["pointerup","pointercancel","lostpointercapture"].forEach(ev=>pad.addEventListener(ev,release));
+  $("stop").addEventListener("click",()=>{
+    release();
+    x=0; y=0; renderJoystick();
+    transmit(true); // zero entra na mesma fila dos demais comandos
+    status.textContent=local ? "Parada solicitada" : "Simulação: parado";
   });
-  pad.addEventListener("keyup", e => { if (teclas[e.key]) { e.preventDefault(); parar(); } });
-  pad.addEventListener("blur", parar);
-  $("stop").addEventListener("click", parar);
-  window.addEventListener("blur", parar);
-  document.addEventListener("visibilitychange", () => { if (document.hidden) parar(); });
-  function velocidadeNova(delta) {
-    const nova = Math.max(30, Math.min(100, velocidade + delta));
-    if (nova === velocidade) return;
-    velocidade = nova;
-    $("velocidade").textContent = velocidade + "%";
-    $("progress").style.width = velocidade + "%";
-    enviar(delta > 0 ? "acelerar" : "desacelerar");
+  window.addEventListener("blur",release);
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)release();});
+
+  function showFarol(value){
+    farol=value;
+    document.querySelectorAll("[data-farol]").forEach(b=>b.classList.toggle("active",b.dataset.farol===value));
+    $("farolInfo").textContent=tips[value];
   }
-  $("menos").addEventListener("click", () => velocidadeNova(-10));
-  $("mais").addEventListener("click", () => velocidadeNova(10));
+  document.querySelectorAll("[data-farol]").forEach(button=>button.addEventListener("click",()=>{
+    showFarol(button.dataset.farol);
+    request("/config",{farol:farol});
+  }));
+
+  $("sensitivity").addEventListener("input",event=>{
+    sensitivity=Number(event.target.value);
+    $("sensitivityValue").textContent=sensitivity;
+  });
+  $("sensitivity").addEventListener("change",()=>request("/config",{limite:sensitivity}));
+
+  $("speed").addEventListener("input",event=>{
+    speed=Number(event.target.value);
+    $("speedValue").textContent=speed+"%";
+  });
+  $("speed").addEventListener("change",()=>request("/config",{velocidade:speed}));
+
+  async function refresh(){
+    if(!local)return;
+    const response=await request("/estado",{},false);
+    if(!response)return;
+    try{
+      const data=await response.json();
+      $("ldr").textContent=data.luz;
+      $("farolStatus").textContent=data.farolLigado?"Ligado":"Desligado";
+      if (activePointer===null) $("direction").textContent=data.movimento==="parar"?"Parado":data.movimento;
+      if (data.modoFarol && data.modoFarol!==farol) showFarol(data.modoFarol);
+      if (Number.isFinite(Number(data.velocidade)) && document.activeElement !== $("speed")) {
+        speed = Number(data.velocidade);
+        $("speed").value = speed;
+        $("speedValue").textContent = speed + "%";
+      }
+      if (Number.isFinite(Number(data.limite)) && document.activeElement !== $("sensitivity")) {
+        sensitivity = Number(data.limite);
+        $("sensitivity").value = sensitivity;
+        $("sensitivityValue").textContent = sensitivity;
+      }
+    }catch(_){}
+  }
+  renderJoystick();
+  refresh();
+  setInterval(refresh,2500);
 })();
 </script>
 </body>
