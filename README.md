@@ -8,6 +8,7 @@ Projeto acadêmico de um carrinho robô com **dois motores DC**, controle por **
 
 - **[Código de cada etapa e datas do trabalho](etapas/README.md)** — exemplos pequenos, separados e comentados.
 - **[Firmware integrado do carrinho](firmware/carrinho/carrinho.ino)** — motores, Wi-Fi, servidor HTTP, faróis, LDR e página.
+- **[Código completo da etapa 04](etapas/04-interface-web/carrinho_web/)** — programa do ESP32 e HTML independentes para dirigir pelo navegador.
 - **[Firmware do controle físico](firmware/controle/controle.ino)** — quatro botões e envio via Wi-Fi.
 - **[Página de demonstração](web/index.html)** — HTML/CSS/JS; conteúdo sincronizado com [`pagina.h`](firmware/carrinho/pagina.h).
 - **[Checklist para testes físicos](docs/validacao-hardware.md)** — teste de motores, Wi-Fi e parada, com resultados ainda pendentes na versão atual.
@@ -24,14 +25,15 @@ Projeto acadêmico de um carrinho robô com **dois motores DC**, controle por **
 | Servidor Wi-Fi com IP no Monitor Serial | Implementado como AP local |
 | Cliente no segundo ESP32 com comandos no Serial | Implementado; exemplo simples da etapa 27/10 disponível |
 | Controle remoto pelo segundo ESP32 | Código integrado implementado; entrega em 04/11 |
-| Controle por página web | Página integrada e simplificada; entregas em 11/11 e 18/11 |
+| Controle por página web | Exemplo funcional independente com botões e página; versão integrada com joystick preservada; entregas em 11/11 e 18/11 |
 | Acelerar e desacelerar nos **dois** tipos de controle | Web e servidor permitem ajuste; faltam comandos dedicados no controle físico |
 | Içar peso com servomotor | **Pendente** (25/11) |
 | Reserva de IP no roteador | **Pendente ou a esclarecer**: o projeto usa IP próprio de AP |
 
 ### O que foi simplificado
 
-- Interface web reorganizada: **direção, velocidade e PARAR** em destaque; faróis e sensibilidade em seção opcional.
+- Interface web integrada reorganizada: **direção, velocidade e PARAR** em destaque; faróis e sensibilidade em seção opcional.
+- Criado **um exemplo completo e separado na etapa 04**, com sketch ESP32, HTML, cabeçalho da página e arquivo de configuração Wi-Fi.
 - Botões de **acelerar/desacelerar** na página, além do controle de velocidade por slider.
 - Pequenos códigos independentes por etapa, sem copiar o firmware grande em todas as pastas.
 - Documentação separa o **que já funciona fisicamente** do **que existe somente no código**.
