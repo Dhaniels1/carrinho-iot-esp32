@@ -11,7 +11,7 @@ Esta pasta contém **códigos pequenos e independentes para estudar cada entrega
 | 21/10 | Servidor no ESP32; mostrar IP no Serial | [Servidor básico](03-controle-wifi/servidor_basico/servidor_basico.ino); firmware integrado implementa |
 | 27/10 | Cliente no segundo ESP32; exibir comandos no Serial | [Cliente didático](03-controle-wifi/cliente_basico/cliente_basico.ino); [controle integrado](../firmware/controle/controle.ino) |
 | 04/11 | Movimentar remotamente pelo controle físico | Código integrado já existe; revisão de acelerar/desacelerar e validação ainda necessárias |
-| 11/11 | Página web de controle | [Primeiro HTML didático](04-interface-web/mini_painel.html); [painel integrado](../web/index.html) |
+| 11/11 | Página web de controle | [Código completo da etapa 04](04-interface-web/carrinho_web/carrinho_web.ino), [interface](04-interface-web/carrinho_web/pagina.html); [painel integrado](../web/index.html) |
 | 18/11 | Movimentar exclusivamente pela página web | Firmware e painel existentes; validação da entrega a realizar |
 | 25/11 | Içar pequeno objeto com servomotor | Não implementado; **não marcar como concluído** |
 | 01/12 | Corrida final | Planejada, sem código adicional agora |
@@ -21,7 +21,7 @@ Esta pasta contém **códigos pequenos e independentes para estudar cada entrega
 - **01-testes-iniciais** — Monitor Serial e leitura simples de GPIO.
 - **02-motores** — Movimento local e faróis/setas, em sketches separados.
 - **03-controle-wifi** — Servidor AP e cliente por botões, cada qual com código próprio.
-- **04-interface-web** — Exemplo HTML muito pequeno para aprender eventos; o painel real fica em `web/index.html`.
+- **04-interface-web** — Código ESP32 + HTML/JS independentes para a entrega, com botões de direção/velocidade; o painel de joystick integrado permanece em `web/index.html`.
 - **firmware/** na raiz — Implementação integrada existente, preservada por funcionar no carrinho físico.
 - **web/** na raiz — Página de demonstração sincronizada com `firmware/carrinho/pagina.h`.
 
@@ -37,7 +37,7 @@ Não copiar o sketch completo em todas as etapas: isso criaria duplicação e to
 
 ## Como executar cada exemplo
 
-Abra o `.ino` em sua pasta, copie `secrets.h.example` para `secrets.h` no exemplo de servidor e configure credenciais localmente. Use Arduino-ESP32 3.x. Para o HTML básico, basta abrir o arquivo no navegador: ele apenas simula os comandos.
+Abra o `.ino` em sua pasta, copie `secrets.h.example` para `secrets.h` no exemplo de servidor e configure credenciais localmente. Use Arduino-ESP32 3.x. O HTML da etapa 04 pode ser aberto no navegador em modo de demonstração; com o sketch ESP32 da etapa gravado, ele envia comandos reais apenas no IP local do carrinho.
 
 As atividades com hardware devem ser realizadas em bancada com alimentação desligável. **A presença de código não comprova o resultado de teste físico.**
 
