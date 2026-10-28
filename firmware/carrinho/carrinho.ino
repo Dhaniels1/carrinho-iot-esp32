@@ -278,7 +278,10 @@ void setup() {
   for (int p : {IN1, IN2, IN3, IN4}) {
     pinMode(p, OUTPUT);
     digitalWrite(p, LOW); // estado seguro antes de ativar o PWM
-    ledcAttach(p, 5000, 8);
+    if (!ledcAttach(p, 5000, 8)) {
+      Serial.printf("ERRO: PWM nao iniciado no GPIO %d\n", p);
+      while (true) delay(1000); // falha segura, sem energizar motores
+    }
     ledcWrite(p, 0);
   }
   for (int p : {LED_R, LED_G, LED_B}) ledcAttach(p, 5000, 8);
