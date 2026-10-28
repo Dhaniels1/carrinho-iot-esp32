@@ -1,23 +1,12 @@
-# Etapa 04 — Interface web e joystick
+# Etapa 04 — Página web
 
-## Objetivo
-Controlar o carrinho por uma página aberta no navegador, usando joystick virtual e configurações de velocidade e faróis.
+**Entregas no PDF:** desenvolver página web até 11/11 e controlar o carrinho exclusivamente pelo navegador até 18/11.
 
-## Como funciona no código atual
-O arquivo `pagina.h` guarda HTML, CSS e JavaScript na memória do ESP32. A rota `/` serve esse painel ao navegador conectado à rede do carrinho.
+## Código da etapa
 
-O JavaScript converte o movimento do joystick em coordenadas **x/y de -100 a 100** e chama a rota `/joystick`. O ESP32 combina os valores para definir a potência de cada motor. Os controles de velocidade, farol e limite do sensor enviam dados para `/config`; o painel lê `/estado` para atualizar as informações.
+- [`mini_painel.html`](mini_painel.html) — exemplo mínimo de HTML, CSS e JavaScript com botões e eventos. **Simula** comandos sem acessar o ESP32; serve para que a dupla compreenda o funcionamento.
+- [`../../web/index.html`](../../web/index.html) — interface integrada, com joystick, controles de velocidade e faróis. A mesma página fica embarcada no [`pagina.h`](../../firmware/carrinho/pagina.h).
 
-## Arquivos de código existentes
-- [firmware/carrinho/pagina.h](../../firmware/carrinho/pagina.h) — página web embarcada usada no carrinho.
-- [firmware/carrinho/carrinho.ino](../../firmware/carrinho/carrinho.ino) — rotas, motores, LEDs e sensor LDR.
-- [web/index.html](../../web/index.html) — demonstração web; não substitui a página local para controlar o carrinho.
+O painel usa a rede local do ESP32; o GitHub Pages é somente uma demonstração pública. No carrinho físico, abrir `http://192.168.4.1/` conectado à rede dele. O botão PARAR de software não substitui um corte físico de energia.
 
-## Funcionalidades presentes no código
-Joystick, botão PARAR, ajuste de velocidade de 30% a 100%, modos de farol, limiar de luminosidade de 100 a 900 e consulta de estado. O firmware define parada de segurança se ficar mais de **1,1 segundo** sem renovar comandos de movimento.
-
-## Validação
-O README principal registra que algumas funcionalidades foram implementadas, mas ainda precisam de testes no hardware. Portanto, **presença no código não significa validação física**. Teste inicialmente com rodas suspensas.
-
-## Arquivo histórico
-Uma versão independente e comprovadamente usada nesta etapa ainda pode ser adicionada depois. O que está linkado acima é a versão integrada atual.
+**Status:** o HTML integrado existe e foi simplificado em 28/10. Testes de apresentação e controle remoto da versão atual ainda devem ser registrados antes das datas de 11/11 e 18/11. O mecanismo de içamento com servo, previsto para 25/11, não foi implementado.
