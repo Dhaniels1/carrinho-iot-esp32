@@ -19,7 +19,7 @@ A documentação do desenvolvimento está organizada em [etapas/](etapas/README.
 | Limiar de luminosidade ajustável entre 100 e 900 | Implementado; testar |
 | Velocidade máxima entre 30 e 100% | Implementado; testar |
 | Preferências persistidas no ESP32 | Implementado; testar |
-| Servomotor para levantar peso | Pendente |
+| Servomotor (mecanismo ainda em definição) | Pendente |
 
 ## Arquivos
 
@@ -47,8 +47,11 @@ A página no **GitHub Pages** permanece uma demonstração pública; para contro
 - O ESP32 cria Wi-Fi de 2,4 GHz, com alcance limitado. A senha da rede protege o acesso básico ao controle. Não use uma senha publicada no repositório.
 - O servidor HTTP é local e **não tem autenticação adicional**; quem entrar na rede do carrinho poderá enviar comandos.
 - Se a comunicação deixar de renovar comandos por ~1,1 s, o firmware tenta parar automaticamente. Teste essa proteção antes de colocar o carrinho no chão.
+- A inversão de sentido dos motores agora zera as quatro saídas PWM antes de acionar o novo sentido; uma inversão direta aguarda 100 microssegundos. Isso reduz risco de acionamento simultâneo, mas **não substitui a proteção do driver de motor**.
+- Ao iniciar sem configuração previamente salva, a velocidade máxima é **30%**. Se já houver um valor salvo no ESP32, ele será mantido (entre 30% e 100%).
 - Ao ativar o AP, o ESP32 do carrinho **não se conecta à internet**; esse é o comportamento intencional.
-- O firmware atualizado **ainda precisa ser compilado, gravado e validado no hardware**.
+- O workflow [Verificar código do carrinho](.github/workflows/verificar.yml) confere HTML/JavaScript e tenta compilar os dois sketches ESP32 nos commits e pull requests. Ele não substitui testes físicos.
+- **Ainda é necessário gravar o firmware e validar o comportamento no hardware.** Consulte o [roteiro de testes](docs/validacao-hardware.md).
 
 ## Joystick
 
@@ -88,6 +91,8 @@ O projeto público pode ser acessado em https://dhaniels1.github.io/carrinho-iot
 | Sensor de luz | 34 |
 | Controle físico (esquerda, direita, frente, ré) | 18, 19, 21 e 22 |
 
+**Limitação dos RGB atuais:** como os dois LEDs compartilham os GPIOs 16, 17 e 18, ambos exibem a mesma cor ao mesmo tempo. O código pode representar uma curva por cor, mas não acender somente a seta esquerda ou somente a direita sem alterar as ligações e o controle dos LEDs.
+
 ## Próximas etapas
 
-Testar no hardware o novo joystick e os controles web, validar o mecanismo de parada e depois implementar o servomotor para içar peso.
+Testar no hardware os dois sentidos de cada motor, o novo joystick, o controle físico, o Wi-Fi e a parada automática (veja [roteiro de validação](docs/validacao-hardware.md)). Depois, decidir o mecanismo com servomotor, que permanece sem código nas etapas reservadas.

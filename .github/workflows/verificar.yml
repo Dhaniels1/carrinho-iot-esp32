@@ -1,0 +1,45 @@
+name: Verificar codigo do carrinho
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter repositorio
+        uses: actions/checkout@v4
+
+      - name: Validar sincronizacao da interface
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("web/index.html").read_text(encoding="utf-8")
+          cabecalho = Path("firmware/carrinho/pagina.h").read_text(encoding="utf-8")
+          embutido = re.search(r'R"CARRINHOHTML\(\n(.*?)\n\)CARRINHOHTML";', cabecalho, re.S)
+          assert embutido and html == embutido.group(1), "A pagina embutida difere de web/index.html"
+          script = re.search(r'<script>\n(.*?)\n</script>', html, re.S)
+          assert script, "Script da interface nao encontrado"
+          Path("/tmp/carrinho-painel.js").write_text(script.group(1), encoding="utf-8")
+          PY
+          node --check /tmp/carrinho-painel.js
+
+      - name: Preparar Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Instalar placa ESP32
+        run: |
+          arduino-cli core update-index --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core install esp32:esp32 --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+
+      - name: Compilar firmware do carrinho e controle
+        run: |
+          cp firmware/carrinho/secrets.h.example firmware/carrinho/secrets.h
+          arduino-cli compile --fqbn esp32:esp32:esp32 firmware/carrinho
+          arduino-cli compile --fqbn esp32:esp32:esp32 firmware/controle
