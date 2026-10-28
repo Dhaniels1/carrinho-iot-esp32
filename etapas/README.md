@@ -21,7 +21,7 @@ Esta pasta contém **códigos pequenos e independentes para estudar cada entrega
 - **01-testes-iniciais** — Monitor Serial e leitura simples de GPIO.
 - **02-motores** — Movimento local e faróis/setas, em sketches separados.
 - **03-controle-wifi** — Servidor AP e cliente por botões, cada qual com código próprio.
-- **04-interface-web** — Código ESP32 + HTML/JS independentes para a entrega, com botões de direção/velocidade; o painel de joystick integrado permanece em `web/index.html`.
+- **04-interface-web** — Código ESP32 + HTML/JS independentes para a entrega, com joystick visual de quatro direções e botões de velocidade; o painel integrado com joystick proporcional permanece em `web/index.html`.
 - **firmware/** na raiz — Implementação integrada existente, preservada por funcionar no carrinho físico.
 - **web/** na raiz — Página de demonstração sincronizada com `firmware/carrinho/pagina.h`.
 
