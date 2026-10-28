@@ -21,11 +21,11 @@ Esta pasta contém **códigos pequenos e independentes para estudar cada entrega
 - **01-testes-iniciais** — Monitor Serial e leitura simples de GPIO.
 - **02-motores** — Movimento local e faróis/setas, em sketches separados.
 - **03-controle-wifi** — Servidor AP e cliente por botões, cada qual com código próprio.
-- **04-interface-web** — Código ESP32 + HTML/JS independentes para a entrega, com joystick visual de quatro direções e botões de velocidade; o painel integrado com joystick proporcional permanece em `web/index.html`.
+- **04-interface-web** — Código completo do ESP32, com a **mesma interface original do vídeo** (joystick proporcional, faróis, sensibilidade, barra de velocidade e PARAR). O firmware da etapa é uma cópia identificada do integrado para fins didáticos.
 - **firmware/** na raiz — Implementação integrada existente, preservada por funcionar no carrinho físico.
 - **web/** na raiz — Página de demonstração sincronizada com `firmware/carrinho/pagina.h`.
 
-Não copiar o sketch completo em todas as etapas: isso criaria duplicação e tornaria qualquer correção mais difícil. Cada etapa contém **um programa pequeno para explicar o conceito**, enquanto o firmware integrado contém o conjunto completo.
+Os exemplos iniciais são pequenos para explicar cada assunto. **A etapa 04 é uma exceção**: para preservar o painel original completo, possui uma cópia identificada do firmware integrado. Não copie o sketch completo nas demais etapas. Quando houver mudanças no controle principal, verifique se a cópia da etapa 04 também precisa ser atualizada.
 
 ## Diferenças que precisam ser resolvidas antes da avaliação
 
