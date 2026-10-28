@@ -1,98 +1,80 @@
 # Carrinho IoT — ESP32
 
-Carrinho acadêmico com controle físico por Wi-Fi e painel web com joystick virtual, ajustes de velocidade, faróis e sensor de luminosidade.
+Projeto acadêmico de um carrinho robô com **dois motores DC**, controle por **outro ESP32** e por **página web**. O repositório está organizado por entregas para que os dois integrantes consigam explicar cada parte.
 
-## Histórico por etapas
+**Disciplina:** Computação em Nuvem e IoT II · Prof. Tarcísio Barroso Marques · enunciado de 26/08/2026.
 
-A documentação do desenvolvimento está organizada em [etapas/](etapas/README.md), com registros dos testes do ESP32, motores, controle Wi-Fi e interface web. As pastas **05-servo-motor** e **06-projeto-final** estão reservadas, sem código por enquanto. Os sketches históricos ainda não localizados estão identificados como pendentes; o firmware atual permanece em `firmware/`.
+## Comece por aqui
 
-## Estado do projeto
+- **[Código de cada etapa e datas do trabalho](etapas/README.md)** — exemplos pequenos, separados e comentados.
+- **[Firmware integrado do carrinho](firmware/carrinho/carrinho.ino)** — motores, Wi-Fi, servidor HTTP, faróis, LDR e página.
+- **[Firmware do controle físico](firmware/controle/controle.ino)** — quatro botões e envio via Wi-Fi.
+- **[Página de demonstração](web/index.html)** — HTML/CSS/JS; conteúdo sincronizado com [`pagina.h`](firmware/carrinho/pagina.h).
+- **[Checklist para testes físicos](docs/validacao-hardware.md)** — teste de motores, Wi-Fi e parada, com resultados ainda pendentes na versão atual.
 
-| Recurso | Status |
-|---|---|
-| Motores e controle de quatro botões | Testados na montagem anterior |
-| Motores calibrados: esquerdo 243 e direito 240 | Testados anteriormente |
-| Sensor de luz e LEDs RGB com curvas sinalizadas | Testados anteriormente |
-| Joystick proporcional e curvas suaves | Implementado em código; testar no hardware |
-| PARAR e parada por ausência de comunicação (1,1 segundo) | Implementado; testar |
-| Faróis Auto / Ligar / Desligar | Implementado; testar |
-| Limiar de luminosidade ajustável entre 100 e 900 | Implementado; testar |
-| Velocidade máxima entre 30 e 100% | Implementado; testar |
-| Preferências persistidas no ESP32 | Implementado; testar |
-| Servomotor (mecanismo ainda em definição) | Pendente |
+> Os códigos curtos nas pastas `etapas/` são **reconstruções didáticas de 28/10/2026**, não cópias comprovadas de sketches das entregas antigas. Não alteramos o registro histórico para fingir testes já realizados.
 
-## Arquivos
+## Estado do trabalho em 28/10/2026
 
-- firmware/carrinho/carrinho.ino: firmware do servidor HTTP, motores, RGB e LDR.
-- firmware/carrinho/pagina.h: painel web embarcado no ESP32.
-- firmware/carrinho/secrets.h.example: modelo de credenciais (sem senha real).
-- firmware/controle/controle.ino: firmware de quatro botões, compatível com o novo carrinho.
-- web/index.html: demonstração estática publicada no GitHub Pages.
+| Funcionalidade obrigatória | Situação |
+| --- | --- |
+| Motores nas direções básicas | Testados na montagem anterior; firmware atual presente |
+| Faróis automáticos quando escurece | Implementados; validar novamente na versão atual |
+| Setas ao virar | Implementadas; dois RGB compartilham os mesmos GPIOs |
+| Servidor Wi-Fi com IP no Monitor Serial | Implementado como AP local |
+| Cliente no segundo ESP32 com comandos no Serial | Implementado; exemplo simples da etapa 27/10 disponível |
+| Controle remoto pelo segundo ESP32 | Código integrado implementado; entrega em 04/11 |
+| Controle por página web | Página integrada e simplificada; entregas em 11/11 e 18/11 |
+| Acelerar e desacelerar nos **dois** tipos de controle | Web e servidor permitem ajuste; faltam comandos dedicados no controle físico |
+| Içar peso com servomotor | **Pendente** (25/11) |
+| Reserva de IP no roteador | **Pendente ou a esclarecer**: o projeto usa IP próprio de AP |
 
-## Conectar diretamente ao carrinho — sem roteador, sem internet
+### O que foi simplificado
 
-O **ESP32 do carrinho é um ponto de acesso Wi-Fi**. Ele cria a rede **Carrinho-IoT** e hospeda a interface do joystick em **http://192.168.4.1/**. Toda a interface (HTML/CSS/JS) continua gravada na memória do ESP32, dentro de `firmware/carrinho/pagina.h`.
+- Interface web reorganizada: **direção, velocidade e PARAR** em destaque; faróis e sensibilidade em seção opcional.
+- Botões de **acelerar/desacelerar** na página, além do controle de velocidade por slider.
+- Pequenos códigos independentes por etapa, sem copiar o firmware grande em todas as pastas.
+- Documentação separa o **que já funciona fisicamente** do **que existe somente no código**.
 
-1. Copie `firmware/carrinho/secrets.h.example` para `firmware/carrinho/secrets.h` (o arquivo `secrets.h` que você criou na versão anterior precisa ser atualizado). Defina `AP_SSID` e uma senha `AP_PASSWORD` **de 8 a 63 caracteres**, de preferência exclusiva para o carrinho. Não publique senhas no GitHub.
-2. Mantenha `carrinho.ino`, `pagina.h` e `secrets.h` na **mesma pasta**. Grave `carrinho.ino` no Arduino IDE com núcleo ESP32 recente (3.x) e abra o Monitor Serial a **9600 baud**.
-3. Confirme as mensagens **REDE DO CARRINHO: Carrinho-IoT** e **IP DO CARRINHO: 192.168.4.1**.
-4. No celular, desligue temporariamente os dados móveis se ele insistir em trocar de rede. Conecte-se ao Wi-Fi **Carrinho-IoT** e entre em **http://192.168.4.1/** (HTTP, não HTTPS). É normal o celular avisar que a rede está *sem internet*.
-5. Teste o joystick e o botão PARAR **com as rodas suspensas**. Comece com velocidade máxima a 30%. Confira depois LEDs, controle manual de farol, leitura de luminosidade e sensibilidade do LDR.
-6. O **ESP32 do controle físico**, se usado, precisa ser atualizado separadamente com a mesma senha do AP. O código `firmware/controle/controle.ino` já aponta para SSID `Carrinho-IoT` e IP `192.168.4.1`, mas ainda exige inserir a senha localmente.
+Mantivemos o firmware integrado e seus recursos já funcionais. A cópia anterior a esta reorganização permanece na branch **[`backup/antes-da-simplificacao-2026-10-28`](https://github.com/Dhaniels1/carrinho-iot-esp32/tree/backup/antes-da-simplificacao-2026-10-28)**.
 
-A página no **GitHub Pages** permanece uma demonstração pública; para controlar o carrinho real, use a página no IP do ESP32. O modo AP não depende de sinal da faculdade ou do Wi-Fi `iot2`.
+## Uso do carrinho físico
 
-### Limites e segurança
+1. Copie `firmware/carrinho/secrets.h.example` para `firmware/carrinho/secrets.h` e configure **senha Wi-Fi exclusiva de 8 a 63 caracteres**. `secrets.h` não deve ir para o GitHub.
+2. Carregue `firmware/carrinho/carrinho.ino` no ESP32 do carrinho usando Arduino-ESP32 **3.x**.
+3. Abra o Monitor Serial a **9600 baud**. O ESP32 cria a rede `Carrinho-IoT` e usa o IP `192.168.4.1`.
+4. Conecte o celular à rede do carrinho e abra **http://192.168.4.1/**. É normal a rede não ter internet.
+5. Para usar o segundo ESP32, configure localmente a senha no `firmware/controle/controle.ino` e grave-o separadamente.
+6. **Teste com rodas suspensas, velocidade baixa e acesso fácil ao corte de energia.**
 
-- O ESP32 cria Wi-Fi de 2,4 GHz, com alcance limitado. A senha da rede protege o acesso básico ao controle. Não use uma senha publicada no repositório.
-- O servidor HTTP é local e **não tem autenticação adicional**; quem entrar na rede do carrinho poderá enviar comandos.
-- Se a comunicação deixar de renovar comandos por ~1,1 s, o firmware tenta parar automaticamente. Teste essa proteção antes de colocar o carrinho no chão.
-- A inversão de sentido dos motores agora zera as quatro saídas PWM antes de acionar o novo sentido; uma inversão direta aguarda 100 microssegundos. Isso reduz risco de acionamento simultâneo, mas **não substitui a proteção do driver de motor**.
-- Ao iniciar sem configuração previamente salva, a velocidade máxima é **30%**. Se já houver um valor salvo no ESP32, ele será mantido (entre 30% e 100%).
-- Ao ativar o AP, o ESP32 do carrinho **não se conecta à internet**; esse é o comportamento intencional.
-- O workflow [Verificar código do carrinho](.github/workflows/verificar.yml) confere HTML/JavaScript e tenta compilar os dois sketches ESP32 nos commits e pull requests. Ele não substitui testes físicos.
-- **Ainda é necessário gravar o firmware e validar o comportamento no hardware.** Consulte o [roteiro de testes](docs/validacao-hardware.md).
+A página pública em **https://dhaniels1.github.io/carrinho-iot-esp32/** apenas simula comandos. Não controla o carrinho físico através da internet.
 
-## Joystick
+## Mapa rápido de conexões do firmware atual
 
-Posição x/y vai de -100 a 100. Eixo y negativo é para a frente, eixo x positivo é para a direita. A mistura de potência nos dois motores permite curvas suaves e giros sobre o eixo. Os valores máximos continuam calibrados em 243 (esquerdo) e 240 (direito). O slider de velocidade define o percentual máximo. Ao soltar o joystick ou perder comunicação por mais de 1,1 segundo, o carrinho para.
+| Item | GPIO |
+| --- | --- |
+| Motor direito, entradas do driver | 25 e 26 |
+| Motor esquerdo, entradas do driver | 32 e 33 |
+| Dois RGB compartilhados, R/G/B | 16, 17, 18 |
+| LDR | 34 |
+| Botões do segundo ESP32: esquerda, direita, frente, ré | 18, 19, 21, 22 |
 
-## Painel de faróis e sensor
+Driver presumido: **MX1508**, ainda sem identificação visual confirmada. Os motores são controlados pelo driver, **não diretamente pelos GPIOs**. Verifique a tensão, a corrente e o GND comum.
 
-- Auto: LDR decide quando ligar o arco-íris.
-- Ligar: LEDs acesos independentemente da leitura de luz.
-- Desligar: LEDs apagados; durante as curvas, a sinalização continua tendo prioridade.
-- Sensibilidade: valor entre 100 e 900; no circuito atual, um valor de leitura menor indica mais escuro. Ligar abaixo do limite, desligar acima de limite + 150 (histerese).
-- As configurações de farol, limite e velocidade são salvas no ESP32 usando Preferences.
+## Comandos do firmware integrado
 
-## Rotas HTTP
+| Rota local | Parâmetros principais |
+| --- | --- |
+| `/` | Interface no ESP32 |
+| `/comando` | `valor=frente/re/esquerda/direita/parar/acelerar/desacelerar` |
+| `/joystick` | `x` e `y` entre -100 e 100 |
+| `/config` | `farol`, `limite`, `velocidade` |
+| `/estado` | Estado informativo em JSON |
 
-| Rota | Parâmetro | Uso |
-|---|---|---|
-| / | nenhum | Página de controle local |
-| /comando | valor=frente, re, esquerda, direita, parar | Botões físicos |
-| /joystick | x=30&y=-60 | Joystick proporcional |
-| /config | farol=auto / ligar / desligar | Modo do farol |
-| /config | limite=300 | Sensibilidade |
-| /config | velocidade=80 | Velocidade máxima |
-| /estado | nenhum | JSON de luminosidade, configurações e movimento |
+A rede Wi-Fi tem senha, mas **não existe autenticação HTTP adicional**. Quem entrar nessa rede pode enviar comandos. O firmware tenta interromper movimento se não receber atualização por aproximadamente 1,1 segundo, mas o botão PARAR e esse timeout **não substituem uma chave física de desligamento**.
 
-## GitHub Pages
+## Testes e próximos passos
 
-O projeto público pode ser acessado em https://dhaniels1.github.io/carrinho-iot-esp32/ (quando disponível). Estes endereços são para **demonstração**. O controle real acontece em **http://192.168.4.1/** depois de conectar ao Wi-Fi **Carrinho-IoT**. Não exponha o servidor HTTP diretamente à internet.
+O workflow [`verificar.yml`](.github/workflows/verificar.yml) verifica a sincronização HTML/página embarcada, a sintaxe JavaScript e a compilação dos firmwares. O resultado de testes físicos da versão atual deve ser anotado em [`docs/validacao-hardware.md`](docs/validacao-hardware.md).
 
-## GPIOs
-
-| Função | GPIO |
-|---|---|
-| Motor direito | 25 e 26 |
-| Motor esquerdo | 32 e 33 |
-| Dois RGB compartilhados R/G/B | 16, 17 e 18 |
-| Sensor de luz | 34 |
-| Controle físico (esquerda, direita, frente, ré) | 18, 19, 21 e 22 |
-
-**Limitação dos RGB atuais:** como os dois LEDs compartilham os GPIOs 16, 17 e 18, ambos exibem a mesma cor ao mesmo tempo. O código pode representar uma curva por cor, mas não acender somente a seta esquerda ou somente a direita sem alterar as ligações e o controle dos LEDs.
-
-## Próximas etapas
-
-Testar no hardware os dois sentidos de cada motor, o novo joystick, o controle físico, o Wi-Fi e a parada automática (veja [roteiro de validação](docs/validacao-hardware.md)). Depois, decidir o mecanismo com servomotor, que permanece sem código nas etapas reservadas.
+**Prioridades da próxima entrega:** demonstrar movimento remoto com o segundo ESP32 (04/11); completar acelerar/desacelerar no controle; discutir com o professor a exigência de IP reservado no roteador. A implementação do servomotor vem depois, para 25/11.
