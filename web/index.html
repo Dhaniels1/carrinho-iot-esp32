@@ -89,21 +89,21 @@ footer{margin-top:14px;font-size:12px;color:#8495ae;text-align:center;line-heigh
  </section>
 </div>
 <section class="panel bottom">
- <div class="slider-head"><h2><label for="speed">Velocidade máxima</label></h2><output id="speedValue">100%</output></div>
- <input id="speed" type="range" min="30" max="100" step="10" value="100">
+ <div class="slider-head"><h2><label for="speed">Velocidade máxima</label></h2><output id="speedValue">30%</output></div>
+ <input id="speed" type="range" min="30" max="100" step="10" value="30">
  <div class="ends"><span>30% · mais lento</span><span>100% · potência calibrada</span></div>
  <div class="actions">
   <div class="status" id="status" role="status">Parado</div>
   <button type="button" class="stop" id="stop">■ &nbsp; PARAR</button>
  </div>
 </section>
-<footer>Teste primeiro com as rodas suspensas. O Netlify mostra uma demonstração; para controlar o carrinho, use o IP do ESP32 na mesma rede Wi-Fi.</footer>
+<footer>Teste primeiro com as rodas suspensas. Esta página pública é apenas uma demonstração; para controlar o carrinho real, conecte-se ao Wi-Fi dele e abra http://192.168.4.1/.</footer>
 </main>
 <script>
 (function(){
   "use strict";
   const $ = id => document.getElementById(id);
-  const local = /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(location.hostname);
+  const local = location.hostname === "192.168.4.1";
   const status = $("status"), pad = $("pad"), knob = $("knob");
   const tips = {
     auto:"O sensor de luz decide quando acender os LEDs.",
@@ -111,8 +111,9 @@ footer{margin-top:14px;font-size:12px;color:#8495ae;text-align:center;line-heigh
     desligar:"Faróis apagados manualmente; as setas continuam funcionando."
   };
   let activePointer = null, x = 0, y = 0, tick = null, lastSent = 0;
-  let farol = "auto", speed = 100, sensitivity = 300;
-  $("modeLabel").textContent = local ? "● Rede local · ESP32" : "◉ Demonstração · Netlify";
+  let enviandoJoystick = false, joystickPendente = null;
+  let farol = "auto", speed = 30, sensitivity = 300;
+  $("modeLabel").textContent = local ? "● Rede local · ESP32" : "◉ Demonstração · Web";
   $("notice").textContent = local
     ? "Controle local: comandos enviados diretamente ao ESP32. O joystick para ao ser solto."
     : "Esta é uma demonstração interativa. Para mover o carrinho real, abra http://IP-DO-CARRINHO no navegador conectado ao mesmo Wi-Fi.";
@@ -143,11 +144,26 @@ footer{margin-top:14px;font-size:12px;color:#8495ae;text-align:center;line-heigh
     if (!local) status.textContent = "Simulação: " + direction();
     else if (!status.classList.contains("error")) status.textContent = direction();
   }
+  // Envia uma requisicao por vez, evitando ultrapassagem do comando de parada.
+  async function enviarJoystickEmOrdem(){
+    if (!local || enviandoJoystick) return;
+    enviandoJoystick = true;
+    try {
+      while (joystickPendente !== null) {
+        const proximo = joystickPendente;
+        joystickPendente = null;
+        await request("/joystick", proximo, false);
+      }
+    } finally {
+      enviandoJoystick = false;
+    }
+  }
   function transmit(force){
     const now = Date.now();
     if (!force && now - lastSent < 90) return;
     lastSent = now;
-    request("/joystick",{x:x,y:y},false);
+    joystickPendente = {x:x, y:y};
+    enviarJoystickEmOrdem();
   }
   function pointerPosition(event){
     const rect = pad.getBoundingClientRect();
@@ -178,8 +194,10 @@ footer{margin-top:14px;font-size:12px;color:#8495ae;text-align:center;line-heigh
   pad.addEventListener("pointermove",event=>{if(activePointer===event.pointerId)pointerPosition(event);});
   ["pointerup","pointercancel","lostpointercapture"].forEach(ev=>pad.addEventListener(ev,release));
   $("stop").addEventListener("click",()=>{
-    release(); request("/comando",{valor:"parar"});
-    status.textContent="PARADA acionada";
+    release();
+    x=0; y=0; renderJoystick();
+    transmit(true); // zero entra na mesma fila dos demais comandos
+    status.textContent=local ? "Parada solicitada" : "Simulação: parado";
   });
   window.addEventListener("blur",release);
   document.addEventListener("visibilitychange",()=>{if(document.hidden)release();});
