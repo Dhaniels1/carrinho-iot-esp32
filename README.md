@@ -91,6 +91,8 @@ O projeto público pode ser acessado em https://dhaniels1.github.io/carrinho-iot
 | Sensor de luz | 34 |
 | Controle físico (esquerda, direita, frente, ré) | 18, 19, 21 e 22 |
 
+**Limitação dos RGB atuais:** como os dois LEDs compartilham os GPIOs 16, 17 e 18, ambos exibem a mesma cor ao mesmo tempo. O código pode representar uma curva por cor, mas não acender somente a seta esquerda ou somente a direita sem alterar as ligações e o controle dos LEDs.
+
 ## Próximas etapas
 
 Testar no hardware os dois sentidos de cada motor, o novo joystick, o controle físico, o Wi-Fi e a parada automática (veja [roteiro de validação](docs/validacao-hardware.md)). Depois, decidir o mecanismo com servomotor, que permanece sem código nas etapas reservadas.
