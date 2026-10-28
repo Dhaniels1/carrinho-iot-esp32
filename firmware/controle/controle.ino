@@ -11,6 +11,8 @@ const int BOTAO_ESQUERDA = 18, BOTAO_DIREITA = 19;
 const int BOTAO_FRENTE = 21, BOTAO_RE = 22;
 String ultimoComando = "";
 unsigned long ultimoEnvio = 0;
+unsigned long ultimaTentativaWiFi = 0;
+bool conectadoAntes = false;
 
 bool enviarComando(const String &comando) {
   if (WiFi.status() != WL_CONNECTED) return false;
@@ -30,15 +32,33 @@ void setup() {
     pinMode(p, INPUT_PULLUP);
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false);
+  WiFi.setAutoReconnect(true);
   WiFi.begin(ssid, senha);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.printf("\nControle pronto | IP: %s\n", WiFi.localIP().toString().c_str());
+  ultimaTentativaWiFi = millis();
+  Serial.println("Conectando ao Wi-Fi do carrinho...");
+  // Nao bloquear o setup caso o carrinho esteja desligado.
 }
 
 void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    if (conectadoAntes) {
+      Serial.println("Wi-Fi perdido. Aguardando reconexao...");
+      conectadoAntes = false;
+    }
+    ultimoComando = "";
+    if (millis() - ultimaTentativaWiFi >= 5000) {
+      ultimaTentativaWiFi = millis();
+      WiFi.reconnect();
+    }
+    delay(50);
+    return;
+  }
+
+  if (!conectadoAntes) {
+    Serial.printf("Controle conectado | IP: %s\n", WiFi.localIP().toString().c_str());
+    conectadoAntes = true;
+  }
+
   String comando = "parar";
   if (!digitalRead(BOTAO_ESQUERDA)) comando = "esquerda";
   else if (!digitalRead(BOTAO_DIREITA)) comando = "direita";
