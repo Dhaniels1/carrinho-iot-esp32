@@ -1,23 +1,30 @@
-# Etapa 03 — Controle por Wi-Fi
+# Etapa 03 — Servidor e cliente Wi-Fi
 
-## Objetivo
-Permitir que o carrinho receba comandos sem depender do roteador da escola ou de internet.
+Esta etapa foi separada em **dois códigos pequenos**, pois o professor pede demonstrar o servidor em 21/10 e o cliente em 27/10.
 
-## Como funciona no código atual
-O ESP32 do carrinho inicia em modo **ponto de acesso** (`WIFI_AP`) e disponibiliza a rede configurada em `secrets.h`. O endereço local definido é **192.168.4.1**. Um servidor HTTP (`WebServer`) recebe os comandos de movimento.
+## 21/10 — Servidor no ESP32 do carrinho
 
-O firmware de controle físico, quando utilizado, se conecta como cliente (`WIFI_STA`) e envia requisições a `/comando?valor=...`.
+[`servidor_basico/servidor_basico.ino`](servidor_basico/servidor_basico.ino)
 
-## Arquivos de código existentes
-- [firmware/carrinho/carrinho.ino](../../firmware/carrinho/carrinho.ino) — ponto de acesso, servidor HTTP e interpretação dos comandos.
-- [firmware/controle/controle.ino](../../firmware/controle/controle.ino) — quatro botões e envio via `HTTPClient`.
-- [Modelo de credenciais](../../firmware/carrinho/secrets.h.example) — exemplo; não publique a senha real.
+- Inicia uma rede Wi-Fi local de exemplo (`WiFi.softAP`).
+- Mostra seu IP no Monitor Serial.
+- Recebe `GET /comando?valor=frente` e imprime o texto recebido.
+- **Não aciona motores**, para manter o exemplo focado na rede.
 
-## Pinos do controle físico no código atual
-Esquerda 18, direita 19, frente 21 e ré 22, com `INPUT_PULLUP`.
+Copie `servidor_basico/secrets.h.example` para `secrets.h` e use sua própria senha.
 
-## Teste recomendado
-Com rodas suspensas, conecte o celular à rede do carrinho e abra `http://192.168.4.1/`. Para o controle físico, grave seu ESP32 separadamente e configure a senha localmente. Verifique a parada quando comandos deixam de chegar.
+## 27/10 — Cliente no segundo ESP32
 
-## Estado
-Documentação baseada no **código atual do repositório**; a versão isolada usada no primeiro teste de Wi-Fi ainda não foi identificada.
+[`cliente_basico/cliente_basico.ino`](cliente_basico/cliente_basico.ino)
+
+- Lê os quatro botões em `INPUT_PULLUP` (esquerda 18, direita 19, frente 21 e ré 22).
+- Mostra no Monitor Serial o comando que seria enviado.
+- O exemplo deliberadamente **não transmite movimento**, porque o enunciado de 27/10 pede demonstrar os comandos; o deslocamento remoto está previsto para 04/11.
+
+O código integrado que **já envia HTTP pelo Wi-Fi** está em [`firmware/controle/controle.ino`](../../firmware/controle/controle.ino), com o servidor correspondente em [`firmware/carrinho/carrinho.ino`](../../firmware/carrinho/carrinho.ino). Não substituir o programa físico por estes exemplos sem verificar o objetivo do teste.
+
+## Requisito pendente: IP reservado no roteador
+
+O PDF exige reserva de IP no roteador. O modo AP do projeto atual oferece IP próprio `192.168.4.1`, **mas isso não equivale a uma reserva de IP no roteador**. Antes da entrega final, combinar com o professor se o modo AP é permitido ou preparar uma versão usando Wi-Fi do roteador com reserva DHCP.
+
+**Origem:** todos os exemplos desta pasta foram reconstruídos didaticamente em 28/10/2026; não são cópias dos sketches históricos.
