@@ -68,8 +68,14 @@ jobs:
           arduino-cli compile --fqbn esp32:esp32:esp32 etapas/02-motores/teste_farois
           arduino-cli compile --fqbn esp32:esp32:esp32 etapas/03-controle-wifi/servidor_basico
           arduino-cli compile --fqbn esp32:esp32:esp32 etapas/03-controle-wifi/cliente_basico
+          arduino-cli compile --fqbn esp32:esp32:esp32 etapas/02-motores/carrinho_local
+          cp etapas/03-controle-wifi/carrinho_wifi/secrets.h.example etapas/03-controle-wifi/carrinho_wifi/secrets.h
+          cp etapas/03-controle-wifi/controle_wifi/secrets.h.example etapas/03-controle-wifi/controle_wifi/secrets.h
+          arduino-cli compile --fqbn esp32:esp32:esp32 etapas/03-controle-wifi/carrinho_wifi
+          arduino-cli compile --fqbn esp32:esp32:esp32 etapas/03-controle-wifi/controle_wifi
 
       - name: Compilar carrinho web da etapa 04
         run: |
           cp etapas/04-interface-web/carrinho_web/secrets.h.example etapas/04-interface-web/carrinho_web/secrets.h
           arduino-cli compile --fqbn esp32:esp32:esp32 etapas/04-interface-web/carrinho_web
+          arduino-cli compile --fqbn esp32:esp32:esp32 etapas/04-interface-web/controle_fisico
