@@ -1,30 +1,43 @@
-# Etapa 03 — Servidor e cliente Wi-Fi
+# Etapa 03 — Carrinho e controle físico via Wi-Fi
 
-Esta etapa foi separada em **dois códigos pequenos**, pois o professor pede demonstrar o servidor em 21/10 e o cliente em 27/10.
+## Versão completa: dois ESP32, dois programas independentes
 
-## 21/10 — Servidor no ESP32 do carrinho
+| ESP32 | Programa completo | Função |
+| --- | --- | --- |
+| **Carrinho** | [carrinho_wifi/carrinho_wifi.ino](carrinho_wifi/carrinho_wifi.ino) | Comanda os **dois motores**, LDR, RGB, Wi-Fi AP, servidor HTTP, velocidade e parada por timeout |
+| **Controle físico** | [controle_wifi/controle_wifi.ino](controle_wifi/controle_wifi.ino) | Lê os **quatro botões**, conecta ao Wi-Fi criado pelo carrinho e **envia comandos HTTP reais** |
 
-[`servidor_basico/servidor_basico.ino`](servidor_basico/servidor_basico.ino)
+Cada sketch compila separadamente e tem seu próprio `secrets.h.example`. Não depende do `firmware/` da raiz.
 
-- Inicia uma rede Wi-Fi local de exemplo (`WiFi.softAP`).
-- Mostra seu IP no Monitor Serial.
-- Recebe `GET /comando?valor=frente` e imprime o texto recebido.
-- **Não aciona motores**, para manter o exemplo focado na rede.
+### Montagem e gravação
 
-Copie `servidor_basico/secrets.h.example` para `secrets.h` e use sua própria senha.
+1. Com alimentação desligada, confira o **driver de motor**, os dois motores e o GND comum. No ESP32 do carrinho: direito GPIO **25/26**, esquerdo **32/33**, RGB **16/17/18**, LDR **34**.
+2. No **outro** ESP32, ligue botões entre GPIO e GND: **esquerda 18**, **direita 19**, **frente 21**, **ré 22**. O código usa `INPUT_PULLUP`.
+3. Copie **cada** `secrets.h.example` para `secrets.h` em sua respectiva pasta. Coloque **o mesmo SSID e a mesma senha** nos dois, com senha de 8 a 63 caracteres. Não publique `secrets.h`.
+4. Na Arduino IDE com **ESP32 Arduino 3.x**, grave `carrinho_wifi/carrinho_wifi.ino` no **ESP32 do carrinho** e `controle_wifi/controle_wifi.ino` no **ESP32 do controle**, **um de cada vez**.
+5. Ligue primeiro o carrinho. Ele cria a rede **Carrinho-IoT** (salvo alteração no `secrets.h`) e mostra **192.168.4.1** no Monitor Serial (9600 baud).
+6. Ligue o controle. Após ele conectar, **solte todos os botões** para habilitar o movimento. Teste com **rodas suspensas**.
 
-## 27/10 — Cliente no segundo ESP32
+### Operação do controle
 
-[`cliente_basico/cliente_basico.ino`](cliente_basico/cliente_basico.ino)
+- Um botão: frente, ré, esquerda ou direita.
+- Soltar: parar.
+- **Frente + ré ao mesmo tempo**: aumentar velocidade em 10%.
+- **Esquerda + direita ao mesmo tempo**: diminuir velocidade em 10%.
 
-- Lê os quatro botões em `INPUT_PULLUP` (esquerda 18, direita 19, frente 21 e ré 22).
-- Mostra no Monitor Serial o comando que seria enviado.
-- O exemplo deliberadamente **não transmite movimento**, porque o enunciado de 27/10 pede demonstrar os comandos; o deslocamento remoto está previsto para 04/11.
+O ajuste de velocidade sempre **para o carrinho primeiro**, por segurança. A velocidade parte de 30%. O controle renova o comando de movimento a cada **250 ms** e o servidor o interrompe depois de cerca de **1 segundo** sem atualização. É uma proteção por software, **não um desligamento físico de emergência**.
 
-O código integrado que **já envia HTTP pelo Wi-Fi** está em [`firmware/controle/controle.ino`](../../firmware/controle/controle.ino), com o servidor correspondente em [`firmware/carrinho/carrinho.ino`](../../firmware/carrinho/carrinho.ino). Não substituir o programa físico por estes exemplos sem verificar o objetivo do teste.
+Você também pode conferir o servidor pelo navegador, ligado à rede do carrinho: `http://192.168.4.1/estado`. A rota `/comando?valor=frente` aciona movimento temporário: use com extremo cuidado e rodas suspensas.
 
-## Requisito pendente: IP reservado no roteador
+## Testes pequenos anteriores, preservados
 
-O PDF exige reserva de IP no roteador. O modo AP do projeto atual oferece IP próprio `192.168.4.1`, **mas isso não equivale a uma reserva de IP no roteador**. Antes da entrega final, combinar com o professor se o modo AP é permitido ou preparar uma versão usando Wi-Fi do roteador com reserva DHCP.
+- [servidor_basico/servidor_basico.ino](servidor_basico/servidor_basico.ino) — demonstra criar Wi-Fi, IP e receber comando, sem mover motores.
+- [cliente_basico/cliente_basico.ino](cliente_basico/cliente_basico.ino) — demonstra ler os botões e imprimir no Serial, sem enviar HTTP.
 
-**Origem:** todos os exemplos desta pasta foram reconstruídos didaticamente em 28/10/2026; não são cópias dos sketches históricos.
+Esses são exemplos isolados para explicar os requisitos iniciais; **o par `carrinho_wifi` + `controle_wifi` demonstra o controle remoto funcionando em código**.
+
+## Limitações
+
+O modo AP (IP **192.168.4.1**) **não é uma reserva DHCP no roteador**. A diferença em relação ao enunciado da disciplina deve ser esclarecida. Os dois LEDs RGB compartilham pinos e não acendem setas de lados independentes.
+
+**Origem:** a dupla de códigos completos foi reconstruída didaticamente em novembro/2026 a partir da pinagem e das funções do projeto; não é prova de uma versão histórica nem de testes físicos bem-sucedidos.
