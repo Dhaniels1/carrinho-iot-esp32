@@ -35,8 +35,9 @@ void aplicarMotores(int esquerda, int direita) {
   delayMicroseconds(120);
   const int e = PWM_ESQUERDO * velocidade / 100;
   const int d = PWM_DIREITO * velocidade / 100;
-  ledcWrite(MOTOR_E1, esquerda > 0 ? e : 0);
-  ledcWrite(MOTOR_E2, esquerda < 0 ? e : 0);
+  // Mesma polaridade usada no firmware integrado: GPIO 32 = re, 33 = frente.
+  ledcWrite(MOTOR_E1, esquerda < 0 ? e : 0);
+  ledcWrite(MOTOR_E2, esquerda > 0 ? e : 0);
   ledcWrite(MOTOR_D1, direita < 0 ? d : 0);
   ledcWrite(MOTOR_D2, direita > 0 ? d : 0);
   motorE = esquerda;
