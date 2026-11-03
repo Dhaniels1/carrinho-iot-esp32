@@ -1,46 +1,44 @@
-# Etapa 04 — Carrinho controlado pela interface web original
+# Etapa 04 — Controle web completo do carrinho
 
-**Entregas do trabalho:** criar a página até **11/11** e movimentar o carrinho exclusivamente pela página até **18/11**.
+## Todos os códigos dentro desta etapa
 
-## Interface preservada
+| O que gravar/abrir | Arquivo | Função |
+| --- | --- | --- |
+| **ESP32 do carrinho** | [carrinho_web/carrinho_web.ino](carrinho_web/carrinho_web.ino) | Motores, LDR, RGB, Wi-Fi, servidor, ajustes e proteção por timeout |
+| **Interface servida pelo carrinho** | [carrinho_web/pagina.h](carrinho_web/pagina.h) | HTML/CSS/JavaScript **embarcados** no ESP32 |
+| **Página original legível** | [carrinho_web/pagina.html](carrinho_web/pagina.html) | Mesma interface, para consulta e demonstração |
+| **Senha de exemplo** | [carrinho_web/secrets.h.example](carrinho_web/secrets.h.example) | Copiar para `carrinho_web/secrets.h` e configurar |
+| **ESP32 do controle físico (opcional)** | [controle_fisico/controle_fisico.ino](controle_fisico/controle_fisico.ino) | Quatro botões com HTTP, independente do firmware da raiz |
 
-Restauramos **a mesma interface mostrada no vídeo** da dupla: fundo escuro em degradê, joystick circular azul, controles de faróis `Auto / Ligar / Desligar`, sensibilidade do sensor de luz, barra de velocidade e botão vermelho **PARAR**.
+**A etapa é autossuficiente:** para o modo **web**, só precisa dos arquivos na pasta `carrinho_web`; para demonstrar também o **controle físico**, grave separadamente `controle_fisico.ino` no segundo ESP32. O código do controle é uma cópia identificada do integrado existente, com os mesmos quatro botões; a senha fica como placeholder local no sketch, **não publique senha real**.
 
-A interface da etapa 04 é **idêntica** à [demonstração web principal](../../web/index.html), sem remover funcionalidades visuais. O firmware desta pasta utiliza as rotas correspondentes `/joystick`, `/config`, `/estado` e `/comando`.
+## Interface completa
 
-## Código completo da etapa
+Mantém o layout original mostrado pela dupla: fundo escuro, joystick azul circular, faróis `Auto / Ligar / Desligar`, sensibilidade do LDR, barra de velocidade e botão vermelho **PARAR**. O código do ESP32 implementa `/joystick`, `/config`, `/estado` e `/comando`.
 
-| Arquivo | Finalidade |
-| --- | --- |
-| [`carrinho_web/carrinho_web.ino`](carrinho_web/carrinho_web.ino) | Programa independente do ESP32, com Wi-Fi, motores, faróis, sensor e rotas HTTP |
-| [`carrinho_web/pagina.html`](carrinho_web/pagina.html) | HTML original com CSS e JavaScript |
-| [`carrinho_web/pagina.h`](carrinho_web/pagina.h) | Mesmo HTML armazenado na memória do ESP32 |
-| [`carrinho_web/secrets.h.example`](carrinho_web/secrets.h.example) | Exemplo de configuração de senha local |
+### Como executar o controle web
 
-Para garantir o funcionamento da interface **sem reinventar a lógica de direção**, o sketch da etapa 04 usa uma cópia identificada do [firmware integrado](../../firmware/carrinho/carrinho.ino). Essa duplicação é intencional para que a etapa tenha os códigos em sua própria pasta. Não é uma cópia comprovada de um arquivo histórico de entrega; é uma versão reconstruída em 28/10/2026.
+1. Copie `carrinho_web/secrets.h.example` para `carrinho_web/secrets.h` e configure uma senha Wi-Fi local (8–63 caracteres).
+2. Abra `carrinho_web/carrinho_web.ino` no Arduino IDE com **ESP32 Arduino 3.x** e grave no ESP32 do carrinho, com `pagina.h` e `secrets.h` na mesma pasta.
+3. Com **rodas suspensas** e meio físico de desligar, abra Monitor Serial a **9600 baud**.
+4. No celular, conecte à rede do ESP32, acesse **http://192.168.4.1/** e use o joystick; ao soltá-lo, o comando vai a zero.
+5. Teste faróis, leitura LDR, controle de velocidade e botão PARAR.
 
-## Como usar
+Para o controle físico opcional, grave `controle_fisico/controle_fisico.ino` **no outro ESP32**, configurando sua senha local para a mesma rede. Botões GPIO **18/19/21/22**, ligados ao GND.
 
-1. Copie `carrinho_web/secrets.h.example` para `carrinho_web/secrets.h` e configure sua própria senha do Wi-Fi (8 a 63 caracteres).
-2. Abra **`carrinho_web/carrinho_web.ino`** na Arduino IDE, com o pacote ESP32 3.x. Deixe `pagina.h` e `secrets.h` na mesma pasta.
-3. Grave o código na placa e abra o Monitor Serial em **9600 baud**.
-4. Conecte o telefone à rede criada pelo ESP32 e acesse **http://192.168.4.1/**.
-5. Teste o joystick, a parada e os ajustes com as **rodas suspensas** e alimentação fácil de desligar.
+A página `pagina.html` pode ser aberta separadamente para demonstração visual; **fora do IP local ela não movimenta o carrinho real**. Quando a apresentação exigir movimento *exclusivamente* pela web, use apenas o celular.
 
-A página [`pagina.html`](carrinho_web/pagina.html) também pode ser aberta no computador em modo de **demonstração**. Fora do IP local, não envia comandos para motores.
+## Como explicar ao professor
 
-## Explicação para a apresentação
+- **HTML/CSS:** estrutura e visual do joystick e painel.
+- **JavaScript:** converte toque em `x/y` e envia via HTTP; recebe o estado do carrinho.
+- **ESP32 WebServer:** serve a página e processa comandos.
+- **PWM e ponte H:** controlam velocidade e sentido dos dois motores.
+- **LDR e RGB:** faróis automáticos e indicação de curvas (mesma cor nos dois módulos).
+- **Segurança:** ao ficar aproximadamente 1,1 s sem renovar movimento, o firmware tenta parar.
 
-- **HTML** organiza joystick, faróis e velocidade.
-- **CSS** define o visual do vídeo e torna a página adaptável à tela.
-- **JavaScript** lê o toque ou mouse, envia coordenadas `x/y` e recebe o estado do ESP32.
-- **`WebServer`** serve a página e recebe comandos em `/joystick` e `/config`.
-- **PWM** ajusta a potência dos dois motores, usando a ponte H.
-- **LDR** aciona automaticamente os LEDs; o firmware indica curvas por alteração das cores.
-- **Timeout** tenta interromper o movimento após aproximadamente **1,1 s** sem atualização dos comandos.
+A arquitetura cria uma rede própria (AP) em **192.168.4.1**, não equivale à reserva de IP no roteador do enunciado. STOP/timeout não substituem um desligamento físico.
 
-O modo atual cria uma rede própria e usa IP local `192.168.4.1`. Ele **não equivale à reserva DHCP no roteador** exigida no PDF, questão ainda a esclarecer com o professor. A parada por software não substitui uma chave física de desligamento.
+## Origem e validação
 
-## Validação
-
-O GitHub Actions está configurado para verificar a sincronização dos arquivos HTML, a sintaxe JavaScript e a compilação dos sketches. **Ainda não é possível afirmar que a cópia da etapa foi aprovada em teste físico ou compilação recente sem consultar os resultados.**
+Os códigos desta pasta são **cópias didáticas identificadas do projeto integrado** e não constituem prova de um arquivo histórico realmente entregue. A compilação automática verifica o código; funcionamento físico depende de testes com as placas, alimentação e ligação reais.

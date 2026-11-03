@@ -1,44 +1,54 @@
-# Desenvolvimento por etapas
+# Desenvolvimento do carrinho por etapas — códigos completos
 
-Esta pasta contém **códigos pequenos e independentes para estudar cada entrega**, além do registro do que já foi feito. São **reconstruções didáticas criadas em 28/10/2026**, e não arquivos recuperados de entregas antigas. O código usado como referência integrada está em [`firmware/`](../firmware/). Não declarar os exemplos como versões historicamente apresentadas ao professor.
+O objetivo desta pasta é mostrar **a evolução do trabalho com programas independentes e executáveis**. Cada etapa tem seu próprio código de demonstração, sem exigir que o professor procure funções espalhadas no firmware principal.
 
-## Sequência do PDF da disciplina
+> **Origem:** os exemplos dos primeiros testes e os novos códigos integrados de 02 e 03 são **reconstruções didáticas feitas em 2026**, não arquivos históricos recuperados das entregas. O firmware da etapa 04 é uma cópia identificada do código integrado atual. A presença no GitHub não comprova validação física.
 
-| Data | Requisito do professor | Código / estado no repositório |
+## Comece pela versão completa de cada etapa
+
+| Etapa | O que demonstra | Código completo |
 | --- | --- | --- |
-| 23/09 | Carrinho percorre as direções sem comandos remotos | [Teste de motores](02-motores/teste_motores/teste_motores.ino); montagem anterior relatada como testada |
-| 20/10 | Faróis automáticos e setas | [Exemplo pequeno](02-motores/teste_farois/teste_farois.ino); firmware integrado também implementa |
-| 21/10 | Servidor no ESP32; mostrar IP no Serial | [Servidor básico](03-controle-wifi/servidor_basico/servidor_basico.ino); firmware integrado implementa |
-| 27/10 | Cliente no segundo ESP32; exibir comandos no Serial | [Cliente didático](03-controle-wifi/cliente_basico/cliente_basico.ino); [controle integrado](../firmware/controle/controle.ino) |
-| 04/11 | Movimentar remotamente pelo controle físico | Código integrado já existe; revisão de acelerar/desacelerar e validação ainda necessárias |
-| 11/11 | Página web de controle | [Código completo da etapa 04](04-interface-web/carrinho_web/carrinho_web.ino), [interface](04-interface-web/carrinho_web/pagina.html); [painel integrado](../web/index.html) |
-| 18/11 | Movimentar exclusivamente pela página web | Firmware e painel existentes; validação da entrega a realizar |
-| 25/11 | Içar pequeno objeto com servomotor | Não implementado; **não marcar como concluído** |
-| 01/12 | Corrida final | Planejada, sem código adicional agora |
+| [01 — Testes iniciais](01-testes-iniciais/) | Comunicação Serial e leitura do LDR | [serial_basico.ino](01-testes-iniciais/serial_basico/serial_basico.ino) |
+| [02 — Movimento local e faróis](02-motores/) | Dois motores, setas, LDR e RGB com controle pelo Serial | [carrinho_local.ino](02-motores/carrinho_local/carrinho_local.ino) |
+| [03 — Controle remoto por Wi-Fi](03-controle-wifi/) | **Dois ESP32 reais**: carrinho com motores/faróis/servidor e controle com botões/HTTP | [Carrinho Wi-Fi](03-controle-wifi/carrinho_wifi/carrinho_wifi.ino) + [Controle Wi-Fi](03-controle-wifi/controle_wifi/controle_wifi.ino) |
+| [04 — Interface web](04-interface-web/) | Painel com joystick, motores, LEDs e sensor; controle físico opcional | [Carrinho web](04-interface-web/carrinho_web/carrinho_web.ino) + [Página embarcada](04-interface-web/carrinho_web/pagina.h) + [Controle físico](04-interface-web/controle_fisico/controle_fisico.ino) |
+| 05 — Servo-motor | Mecanismo ainda não implementado | Pasta reservada, **sem código** |
+| 06 — Projeto final | Integração e apresentação final | Pasta reservada, **sem código** |
 
-## Organização
+Os sketches menores que já existiam (`teste_motores`, `teste_farois`, `servidor_basico`, `cliente_basico`) foram **preservados como testes unitários de bancada**. Eles não substituem os programas integrados que reproduzem o funcionamento de cada etapa.
 
-- **01-testes-iniciais** — Monitor Serial e leitura simples de GPIO.
-- **02-motores** — Movimento local e faróis/setas, em sketches separados.
-- **03-controle-wifi** — Servidor AP e cliente por botões, cada qual com código próprio.
-- **04-interface-web** — Código completo do ESP32, com a **mesma interface original do vídeo** (joystick proporcional, faróis, sensibilidade, barra de velocidade e PARAR). O firmware da etapa é uma cópia identificada do integrado para fins didáticos.
-- **firmware/** na raiz — Implementação integrada existente, preservada por funcionar no carrinho físico.
-- **web/** na raiz — Página de demonstração sincronizada com `firmware/carrinho/pagina.h`.
+## Como usar
 
-Os exemplos iniciais são pequenos para explicar cada assunto. **A etapa 04 é uma exceção**: para preservar o painel original completo, possui uma cópia identificada do firmware integrado. Não copie o sketch completo nas demais etapas. Quando houver mudanças no controle principal, verifique se a cópia da etapa 04 também precisa ser atualizada.
+1. Escolha a etapa e consulte o **README dentro dela** (pinos, materiais, comandos, credenciais e instruções).
+2. Grave um **.ino por placa ESP32**, mantendo arquivos `.h` que vierem na mesma pasta.
+3. Na etapa 03, são **dois programas simultâneos em dois ESP32 diferentes**; configure o mesmo SSID/senha de `secrets.h` localmente.
+4. Na etapa 04, o ESP32 do carrinho já serve todo o HTML. A pasta `controle_fisico` é uma opção para mostrar os quatro botões em outro ESP32; para a entrega exclusiva da página, ele pode ficar desligado.
+5. Primeiro teste **com as rodas suspensas**, alimentação com GND comum e botão/chave para cortar energia.
 
-## Diferenças que precisam ser resolvidas antes da avaliação
+### Código central (em uso como referência)
 
-1. **Reserva de IP no roteador:** o enunciado exige reserva DHCP no roteador. O projeto integrado atualmente usa o próprio ESP32 como AP, com IP 192.168.4.1. **Essas não são a mesma configuração.** A implementação atual não demonstra o requisito do roteador. Planejar mudança de rede com a dupla/professor **antes de alterar um conjunto físico que funciona**.
-2. **Acelerar/desacelerar em ambas as formas de controle:** o servidor recebe esses comandos e o painel web ajusta a velocidade; o controle físico integrado atual usa quatro botões de direção e não tem entradas próprias para acelerar/desacelerar.
-3. **Servomotor:** falta a implementação e o teste de içamento, previstos para 25/11.
-4. **RGB:** os dois módulos RGB usam os mesmos GPIOs, portanto não conseguem sinalizar lados independentes sem outra ligação/estratégia.
-5. **Segurança:** STOP via HTTP e timeout não são desligamento físico. Testar primeiro com rodas suspensas.
+- [firmware/carrinho/](../firmware/carrinho/) — firmware integrado atual, preservado.
+- [firmware/controle/](../firmware/controle/) — firmware do controle físico atual.
+- [web/index.html](../web/index.html) — demonstração do painel, sem enviar comando ao carrinho fora da rede do ESP32.
 
-## Como executar cada exemplo
+**Não edite o `firmware/` da raiz só para modificar uma etapa passada:** as versões por etapa são cópias didáticas independentes.
 
-Abra o `.ino` em sua pasta, copie `secrets.h.example` para `secrets.h` no exemplo de servidor e configure credenciais localmente. Use Arduino-ESP32 3.x. O HTML da etapa 04 pode ser aberto no navegador em modo de demonstração; com o sketch ESP32 da etapa gravado, ele envia comandos reais apenas no IP local do carrinho.
+## Sequência do enunciado e limitações
 
-As atividades com hardware devem ser realizadas em bancada com alimentação desligável. **A presença de código não comprova o resultado de teste físico.**
+| Data do roteiro | Meta | Como o repositório aborda |
+| --- | --- | --- |
+| 23/09 | Movimento sem controle remoto | Etapa 02 completa + teste isolado de motores |
+| 20/10 | Faróis automáticos e setas | Etapa 02 completa + teste isolado de LEDs |
+| 21/10 | ESP32 servidor mostrando IP | Etapa 03 (servidor básico e carrinho Wi-Fi completo) |
+| 27/10 | ESP32 cliente lendo botões | Etapa 03 (cliente básico e controle Wi-Fi completo) |
+| 04/11 | Movimentação remota pelo controle | Par completo da etapa 03 |
+| 11/11 | Interface web de controle | Etapa 04 com HTML e ESP32 completo |
+| 18/11 | Movimentar apenas pela interface web | Etapa 04 usando o celular e o carrinho |
+| 25/11 | Içar objeto com servomotor | Pendente, não implementado |
+| 01/12 | Corrida final | Pendente |
 
-Referência da disciplina: PDF fornecido pela dupla, “Computação em Nuvem e IoT II”, Tarcísio Barroso Marques, 26/08/2026.
+**Diferenças importantes:** o modo ponto de acesso **não equivale à reserva de IP no roteador** pedida no enunciado. Os dois RGB compartilham pinos e não podem mostrar setas de lados independentes. STOP via HTTP/timeout não substitui desligamento físico.
+
+A compilação automatizada é uma verificação de código, **não é prova de que o hardware foi montado e testado**. Consultar também o [roteiro de validação](../docs/validacao-hardware.md).
+
+Referência do roteiro: documento de disciplina já descrito no repositório, “Computação em Nuvem e IoT II”, Tarcísio Barroso Marques, 26/08/2026.
