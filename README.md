@@ -1,5 +1,18 @@
 # Carrinho IoT — ESP32
 
+## Códigos completos por etapa
+
+A pasta **[etapas/](etapas/README.md)** contém programas completos e **independentes**, organizados por entrega. Não são apenas exemplos de funções nem precisam importar outros sketches da raiz.
+
+- **[01 — Testes iniciais](etapas/01-testes-iniciais/)** — ESP32, Monitor Serial e leitura do LDR.
+- **[02 — Carrinho local completo](etapas/02-motores/carrinho_local/carrinho_local.ino)** — motores direito/esquerdo, faróis, LDR e setas com comandos pelo Serial.
+- **[03 — Carrinho Wi-Fi completo](etapas/03-controle-wifi/carrinho_wifi/carrinho_wifi.ino)** **+ [controle físico completo](etapas/03-controle-wifi/controle_wifi/controle_wifi.ino)** — dois ESP32, com transmissão HTTP real.
+- **[04 — Carrinho web completo](etapas/04-interface-web/carrinho_web/carrinho_web.ino)** **+ [interface embarcada](etapas/04-interface-web/carrinho_web/pagina.h) + [controle físico opcional](etapas/04-interface-web/controle_fisico/controle_fisico.ino)** — pacote independente da etapa web.
+- **05 e 06** — ainda reservadas e sem sketches.
+
+Os programas antigos de testes pequenos foram mantidos e os programas completos de 02/03 são **reconstruções didáticas**, não versões históricas comprovadamente entregues. **Teste primeiro com rodas suspensas**.
+
+
 Projeto acadêmico de um carrinho robô com **dois motores DC**, controle por **outro ESP32** e por **página web**. O repositório está organizado por entregas para que os dois integrantes consigam explicar cada parte.
 
 **Disciplina:** Computação em Nuvem e IoT II · Prof. Tarcísio Barroso Marques · enunciado de 26/08/2026.
